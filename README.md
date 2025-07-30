@@ -1,10 +1,33 @@
 # Franklin County Eviction & Social Vulnerability Analysis
 
-An interactive R Shiny web application that visualizes the relationship between eviction filings and social vulnerability in Franklin County, Ohio.
-
 ## Overview
 
-This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
+This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
+
+## Impact on Community Interventions
+
+This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high eviction rates combined with high social vulnerability, these organizations can:
+
+### **Targeted Resource Allocation**
+- **Priority Areas**: Identify tracts with both high eviction filings and high SVI scores (purple areas on the map) as primary intervention targets
+- **Resource Optimization**: Direct limited funding and staff resources to areas where they will have the greatest impact
+- **Prevention Focus**: Target high-risk areas before evictions lead to homelessness
+
+### **Evidence-Based Program Design**
+- **Data-Driven Decisions**: Use spatial patterns to inform program development and service delivery strategies
+- **Community Needs Assessment**: Understand the specific vulnerabilities and challenges in each tract
+- **Partnership Opportunities**: Identify areas where multiple organizations can collaborate for comprehensive support
+
+### **Proactive Intervention Strategies**
+- **Early Warning System**: Monitor tracts with increasing eviction rates to implement preventive measures
+- **Legal Aid Distribution**: Direct tenant rights education and legal assistance to high-eviction areas
+- **Housing Stability Programs**: Target rental assistance and housing counseling in vulnerable communities
+- **Social Services Coordination**: Connect residents in high-risk areas with available support services
+
+### **Policy and Advocacy Support**
+- **Data Visualization**: Provide compelling visual evidence for policy makers and funders
+- **Impact Measurement**: Track changes in eviction rates and vulnerability over time
+- **Grant Applications**: Support funding requests with quantitative evidence of need
 
 ## Features
 
@@ -69,12 +92,12 @@ install.packages(c(
 
 2. **Launch the Shiny app**:
    ```r
-   source("bivariate_app_12months.R")
+   source("hRisk_app.R")
    ```
    
    Or from terminal:
    ```bash
-   Rscript bivariate_app_12months.R
+   Rscript hRisk_app.R
    ```
 
 3. **Access the application**:
@@ -120,8 +143,8 @@ The map uses a four-category classification system:
 
 ```
 Homelessness/
-├── README.md                           # This file
-├── bivariate_app_12months.R           # Main Shiny application
+├── README.md                          # This file
+├── hRisk_app.R                        # Main Shiny application
 ├── process_eviction_data_12months.R   # Data processing script
 ├── columbus_monthly_2020_2021.csv     # Raw eviction data
 ├── Franklin County SVI Data.shp       # Geographic boundaries + SVI
@@ -134,7 +157,7 @@ Homelessness/
 
 All data used in this project is publicly available:
 - Eviction data from Princeton University's Eviction Tracking System
-- SVI data from CDC/ATSDR
+- SVI data from Franklin County Cares
 - Geographic boundaries from standard census sources
 
 This repository is suitable for public GitHub hosting as it contains no sensitive or private information.
@@ -157,6 +180,14 @@ This project is open source and available under the MIT License.
 - **Social Vulnerability Index**: CDC/ATSDR
 - **R Shiny**: RStudio
 - **Leaflet**: Open source mapping library
+
+## References
+
+Hepburn, P., Haas, J., Louis, R., Chapnik, A., Grubbs-Donovan, D., Jin, O., Rangel, J., & Desmond, M. (2020). Eviction Tracking System: Version 2.0. Princeton: Princeton University. www.evictionlab.org
+
+Franklin County CARES. (n.d.). Indicator 9375 [Data set]. Franklin County CARES. Retrieved July 30, 2025, from https://www.franklincocares.org/indicators/index/view?indicatorId=9375&localeTypeId=4
+
+U.S. Census Bureau. (2023). TIGER/Line Shapefile, 2023, County: Franklin County, OH - Topological faces polygons with all geocode [Data set]. Retrieved July 30, 2025, from https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode
 
 ## Contact
 
