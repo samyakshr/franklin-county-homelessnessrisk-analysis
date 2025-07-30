@@ -1,0 +1,37 @@
+# R specific files
+.RData
+.Rhistory
+.Rapp.history
+.Ruserdata
+
+# RStudio files
+.Rproj.user/
+*.Rproj
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Data processing outputs (optional - remove if you want to include processed data)
+# eviction_svi_bivariate_data.csv
+# eviction_svi_bivariate_data_12months.csv
+
+# R package files
+*.tar.gz
+*.zip
+
+# Shiny deployment files
+rsconnect/ 
