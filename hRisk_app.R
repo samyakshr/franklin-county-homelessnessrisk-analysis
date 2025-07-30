@@ -1,5 +1,6 @@
-#Bivariate Map: Eviction Rates and SVI
-#R Shiny Web Application - Modern UI Version
+# Franklin County Eviction Analysis - Bivariate Map
+# Interactive mapping of eviction filings and social vulnerability
+# Made by Samyak Shrestha
 
 library(shiny)
 library(sf)
@@ -8,88 +9,70 @@ library(dplyr)
 library(readr)
 library(RColorBrewer)
 
-# Load the processed bivariate data
-bivariate_data <- read_csv("eviction_svi_bivariate_data.csv")
-
-# Load the shapefile data
+# Load data
+bivariate_data <- read_csv("eviction_svi_bivariate_data_12months.csv")
 franklin_svi <- st_read("Franklin County SVI Data.shp")
 
-# Fix data type issues - ensure GEOID is character in both datasets
+# Fix data types
 bivariate_data$GEOID <- as.character(bivariate_data$GEOID)
 franklin_svi$GEOID <- as.character(franklin_svi$GEOID)
 
-# Merge the bivariate data with the spatial data
+# Merge data
 map_data <- franklin_svi %>%
   left_join(bivariate_data, by = "GEOID") %>%
-  filter(!is.na(eviction_rate_2020)) %>%
-  # Clean up duplicate columns and rename for clarity
+  filter(!is.na(total_filings_12months)) %>%
   mutate(
-    NAME = NAME.x,  # Use the shapefile NAME column
-    ALAND = ALAND.x,  # Use the shapefile ALAND column
-    AWATER = AWATER.x  # Use the shapefile AWATER column
+    NAME = NAME.x,
+    ALAND = ALAND.x,
+    AWATER = AWATER.x
   ) %>%
-  select(-NAME.y, -ALAND.y, -AWATER.y)  # Remove duplicate columns
+  select(-NAME.y, -ALAND.y, -AWATER.y)
 
 cat("Map data loaded successfully!\n")
 cat("Number of tracts with data:", nrow(map_data), "\n")
 
-# Create color palettes for bivariate mapping
-# SVI colors (reds)
+# Color palettes
 svi_pal <- colorNumeric(
   palette = "Reds",
   domain = map_data$SVI_normalized,
   na.color = "transparent"
 )
 
-# Eviction rate colors (blues)
 eviction_pal <- colorNumeric(
   palette = "Blues",
-  domain = map_data$eviction_rate_normalized,
+  domain = map_data$total_filings_12months,
   na.color = "transparent"
 )
 
-# Bivariate color palette (combining both variables)
+# Bivariate color function
 create_bivariate_palette <- function(data) {
-  # Create a bivariate color scheme
-  # High SVI + High Eviction = Purple
-  # High SVI + Low Eviction = Red
-  # Low SVI + High Eviction = Blue
-  # Low SVI + Low Eviction = Light Gray
-  
   colors <- sapply(1:nrow(data), function(i) {
     svi_val <- data$SVI_normalized[i]
-    eviction_val <- data$eviction_rate_normalized[i]
+    eviction_val <- data$total_filings_12months[i]
     
     if (is.na(svi_val) || is.na(eviction_val)) return("#f0f0f0")
     
-    # Define thresholds for high/low
     svi_high <- svi_val > 0.5
-    eviction_high <- eviction_val > 0.5
+    eviction_high <- eviction_val > median(data$total_filings_12months, na.rm = TRUE)
     
     if (svi_high && eviction_high) {
-      # Purple for high both
-      return("#8e44ad")
+      return("#8e44ad")  # Purple
     } else if (svi_high && !eviction_high) {
-      # Red for high SVI, low eviction
-      return("#e74c3c")
+      return("#e74c3c")  # Red
     } else if (!svi_high && eviction_high) {
-      # Blue for low SVI, high eviction
-      return("#3498db")
+      return("#3498db")  # Blue
     } else {
-      # Light gray for low both
-      return("#ecf0f1")
+      return("#ecf0f1")  # Gray
     }
   })
   
   return(colors)
 }
 
-# Modern UI with custom CSS
+# UI
 ui <- fluidPage(
-  # Custom CSS for modern styling
   tags$head(
     tags$style(HTML("
-      /* Modern color scheme and typography */
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: #000000;
@@ -156,7 +139,7 @@ ui <- fluidPage(
         margin-bottom: 20px;
       }
       
-      .form-group label {
+      .form-group h5 {
         color: #2c3e50;
         font-weight: 500;
         font-size: 0.95em;
@@ -178,40 +161,47 @@ ui <- fluidPage(
         outline: none;
       }
       
-      /* Slider styling */
-      .irs--shiny .irs-bar {
-        background: linear-gradient(90deg, #3498db, #2980b9);
-      }
-      
-      .irs--shiny .irs-handle {
-        border: 3px solid #3498db;
-        background: #fff;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      }
-      
       /* Info boxes */
       .info-box {
-        background: rgba(52, 152, 219, 0.1);
-        border-left: 4px solid #3498db;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
         padding: 15px;
+        border-radius: 10px;
         margin: 15px 0;
-        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      .info-box h4 {
+        color: white;
+        margin: 0 0 10px 0;
+        font-size: 1.1em;
       }
       
       .info-box p {
         margin: 5px 0;
-        color: #2c3e50;
         font-size: 0.9em;
-        line-height: 1.4;
+        opacity: 0.9;
       }
       
-      /* Legend styling */
-      .legend-box {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 8px;
+      /* Statistics box */
+      .stats-box {
+        background: rgba(52, 152, 219, 0.1);
+        border: 2px solid #3498db;
+        border-radius: 10px;
         padding: 15px;
         margin: 15px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Courier New', monospace;
+        font-size: 0.85em;
+        color: #2c3e50;
+      }
+      
+      /* Legend box */
+      .legend-box {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
       
       .legend-item {
@@ -219,6 +209,7 @@ ui <- fluidPage(
         align-items: center;
         margin: 8px 0;
         font-size: 0.9em;
+        color: #2c3e50;
       }
       
       .legend-color {
@@ -226,25 +217,7 @@ ui <- fluidPage(
         height: 20px;
         border-radius: 4px;
         margin-right: 10px;
-        border: 1px solid #ddd;
-      }
-      
-      /* Stats styling */
-      .stats-box {
-        background: rgba(46, 204, 113, 0.1);
-        border-left: 4px solid #2ecc71;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 15px 0;
-      }
-      
-      .stats-box pre {
-        background: transparent;
-        border: none;
-        color: #2c3e50;
-        font-size: 0.85em;
-        line-height: 1.3;
-        margin: 0;
+        border: 1px solid #bdc3c7;
       }
       
       /* Map container */
@@ -256,28 +229,21 @@ ui <- fluidPage(
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
       }
-      
-      /* Responsive design */
-      @media (max-width: 768px) {
-        .header h1 { font-size: 1.8em; }
-        .sidebar { margin: 10px; padding: 15px; }
-        .map-container { margin: 10px; padding: 15px; }
-      }
     "))
   ),
   
-  # Header section
+  # Header
   div(class = "header",
-    h1("🏠 Franklin County Housing Vulnerability Dashboard"),
-    p("Interactive mapping of eviction rates and social vulnerability across census tracts")
+    h1("Franklin County Eviction & Social Vulnerability Analysis"),
+    p("Interactive Bivariate Map: 12-Month Eviction Filings (July 2024 - June 2025) + Social Vulnerability Index")
   ),
   
-  # Main content
+  # Main layout
   fluidRow(
-    # Sidebar
+    # Sidebar panel
     column(width = 3,
       div(class = "sidebar",
-        h3("🗺️ Map Controls"),
+        h3("Map Controls"),
         
         # Map type selection
         div(class = "form-group",
@@ -286,7 +252,7 @@ ui <- fluidPage(
                      NULL,
                      choices = c("Bivariate (SVI + Eviction)" = "Bivariate (SVI + Eviction)", 
                                 "SVI Only" = "SVI Only", 
-                                "Eviction Rate Only" = "Eviction Rate Only"),
+                                "Eviction Filings Only" = "Eviction Filings Only"),
                      selected = "Bivariate (SVI + Eviction)")
         ),
         
@@ -312,22 +278,23 @@ ui <- fluidPage(
                      step = 0.1)
         ),
         
-        # Information panel
-        h4("📊 Data Information"),
+        # Information about the data
+        h4("Data Information"),
         div(class = "info-box",
-          p("This map shows the relationship between eviction rates and social vulnerability in Franklin County, Ohio."),
-          p("Eviction rates are calculated per 1,000 residents using 2020 data."),
-          p("SVI values are normalized to a 0-1 scale for comparison.")
+          h4("Time Period"),
+          p("Eviction data covers July 2024 - June 2025"),
+          p("(12 months of recent eviction filings)"),
+          p("SVI data represents social vulnerability index")
         ),
         
         # Statistics
-        h4("📈 Statistics"),
+        h4("Statistics"),
         div(class = "stats-box",
           verbatimTextOutput("stats")
         ),
         
         # Legend explanation
-        h4("🎨 Bivariate Legend"),
+        h4("Bivariate Legend"),
         div(class = "legend-box",
           div(class = "legend-item",
             div(class = "legend-color", style = "background-color: #8e44ad;"),
@@ -367,7 +334,7 @@ server <- function(input, output, session) {
       domain = if(input$map_type == "SVI Only") {
         map_data$SVI_normalized
       } else {
-        map_data$eviction_rate_normalized
+        map_data$total_filings_12months
       },
       na.color = "transparent"
     )
@@ -385,7 +352,7 @@ server <- function(input, output, session) {
         fillColor = if(input$map_type == "Bivariate (SVI + Eviction)") {
           create_bivariate_palette(map_data)
         } else {
-          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else eviction_rate_normalized)
+          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else total_filings_12months)
         },
         weight = 1,
         opacity = 1,
@@ -399,21 +366,20 @@ server <- function(input, output, session) {
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
-          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>🏠 Census Tract Information</h4>",
+          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Census Tract Information</h4>",
           "<p><strong>Tract:</strong> ", NAME, "</p>",
           "<p><strong>GEOID:</strong> ", GEOID, "</p>",
           "<p><strong>Racial Majority:</strong> ", racial_majority, "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
-          "<h5 style='color: #e74c3c; margin: 10px 0;'>📊 Eviction Data (2020)</h5>",
-          "<p><strong>Eviction Rate:</strong> ", round(eviction_rate_2020, 2), " per 1,000 residents</p>",
-          "<p><strong>Total Filings:</strong> ", total_filings_2020, "</p>",
+          "<h5 style='color: #e74c3c; margin: 10px 0;'>Eviction Data (Jul 2024 - Jun 2025)</h5>",
+          "<p><strong>Total Filings:</strong> ", total_filings_12months, "</p>",
           "<p><strong>Estimated Population:</strong> ", round(estimated_population, 0), "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
-          "<h5 style='color: #3498db; margin: 10px 0;'>🏘️ Social Vulnerability</h5>",
+          "<h5 style='color: #3498db; margin: 10px 0;'>Social Vulnerability</h5>",
           "<p><strong>SVI Value:</strong> ", round(SVI_normalized, 4), "</p>",
           "</div>"
         ),
-        label = ~paste("Tract:", NAME, "| Eviction Rate:", round(eviction_rate_2020, 1), "| SVI:", round(SVI_normalized, 3)),
+        label = ~paste("Tract:", NAME, "| Filings:", total_filings_12months, "| SVI:", round(SVI_normalized, 3)),
         labelOptions = labelOptions(
           style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
           textsize = "12px",
@@ -437,14 +403,14 @@ server <- function(input, output, session) {
           c("High SVI + High Eviction", "High SVI + Low Eviction", 
             "Low SVI + High Eviction", "Low SVI + Low Eviction")
         } else {
-          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$eviction_rate_normalized
+          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$total_filings_12months
         },
         title = if(input$map_type == "Bivariate (SVI + Eviction)") {
           "Bivariate Classification"
         } else if(input$map_type == "SVI Only") {
           "SVI Values"
         } else {
-          "Eviction Rate"
+          "Eviction Filings"
         },
         opacity = 0.9,
         labFormat = if(input$map_type == "Bivariate (SVI + Eviction)") {
@@ -473,7 +439,7 @@ server <- function(input, output, session) {
         fillColor = if(input$map_type == "Bivariate (SVI + Eviction)") {
           create_bivariate_palette(map_data)
         } else {
-          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else eviction_rate_normalized)
+          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else total_filings_12months)
         },
         weight = 1,
         opacity = 1,
@@ -487,21 +453,20 @@ server <- function(input, output, session) {
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
-          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>🏠 Census Tract Information</h4>",
+          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Census Tract Information</h4>",
           "<p><strong>Tract:</strong> ", NAME, "</p>",
           "<p><strong>GEOID:</strong> ", GEOID, "</p>",
           "<p><strong>Racial Majority:</strong> ", racial_majority, "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
-          "<h5 style='color: #e74c3c; margin: 10px 0;'>📊 Eviction Data (2020)</h5>",
-          "<p><strong>Eviction Rate:</strong> ", round(eviction_rate_2020, 2), " per 1,000 residents</p>",
-          "<p><strong>Total Filings:</strong> ", total_filings_2020, "</p>",
+          "<h5 style='color: #e74c3c; margin: 10px 0;'>Eviction Data (Jul 2024 - Jun 2025)</h5>",
+          "<p><strong>Total Filings:</strong> ", total_filings_12months, "</p>",
           "<p><strong>Estimated Population:</strong> ", round(estimated_population, 0), "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
-          "<h5 style='color: #3498db; margin: 10px 0;'>🏘️ Social Vulnerability</h5>",
+          "<h5 style='color: #3498db; margin: 10px 0;'>Social Vulnerability</h5>",
           "<p><strong>SVI Value:</strong> ", round(SVI_normalized, 4), "</p>",
           "</div>"
         ),
-        label = ~paste("Tract:", NAME, "| Eviction Rate:", round(eviction_rate_2020, 1), "| SVI:", round(SVI_normalized, 3)),
+        label = ~paste("Tract:", NAME, "| Filings:", total_filings_12months, "| SVI:", round(SVI_normalized, 3)),
         labelOptions = labelOptions(
           style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
           textsize = "12px",
@@ -510,26 +475,24 @@ server <- function(input, output, session) {
       )
   })
   
-  # Statistics output with better formatting
+  # Statistics output
   output$stats <- renderPrint({
-    cat("📊 Eviction Rate Statistics (2020):\n")
-    cat("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-    cat("Mean:    ", round(mean(map_data$eviction_rate_2020, na.rm = TRUE), 2), " per 1,000\n")
-    cat("Median:  ", round(median(map_data$eviction_rate_2020, na.rm = TRUE), 2), " per 1,000\n")
-    cat("Maximum: ", round(max(map_data$eviction_rate_2020, na.rm = TRUE), 2), " per 1,000\n")
-    cat("\n🏘️ Social Vulnerability Index:\n")
-    cat("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-    cat("Mean:    ", round(mean(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
-    cat("Median:  ", round(median(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
-    cat("Maximum: ", round(max(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
-    cat("\n🔗 Correlation Analysis:\n")
-    cat("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-    cat("SVI ↔ Eviction Rate: ", round(cor(map_data$SVI_normalized, map_data$eviction_rate_normalized, use = "complete.obs"), 4), "\n")
-    cat("\n📋 Coverage:\n")
-    cat("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+    cat("12-Month Eviction Statistics\n")
+    cat("===============================\n\n")
+    cat("Time Period: July 2024 - June 2025\n")
     cat("Total Census Tracts: ", nrow(map_data), "\n")
-    cat("Tracts with Evictions: ", sum(map_data$total_filings_2020 > 0), "\n")
+    cat("Total Eviction Filings: ", sum(map_data$total_filings_12months, na.rm = TRUE), "\n\n")
+    cat("Filing Statistics:\n")
+    cat("   • Average: ", round(mean(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
+    cat("   • Median:  ", round(median(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
+    cat("   • Maximum: ", round(max(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
+    cat("   • Minimum: ", round(min(map_data$total_filings_12months, na.rm = TRUE), 1), "\n\n")
+    cat("SVI Statistics:\n")
+    cat("   • Average SVI: ", round(mean(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
+    cat("   • Max SVI:     ", round(max(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
+    cat("   • Min SVI:     ", round(min(map_data$SVI_normalized, na.rm = TRUE), 4), "\n")
   })
 }
 
+# Run the app
 shinyApp(ui = ui, server = server) 
