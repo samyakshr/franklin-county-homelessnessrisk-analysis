@@ -4,30 +4,30 @@
 
 This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
 
+Created by Samyak Shrestha | Special thanks to Dr. Ayaz Hyder and Dylan Sansone!
+
 ## Impact on Community Interventions
 
 This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high eviction rates combined with high social vulnerability, these organizations can:
 
 ### **Targeted Resource Allocation**
-- **Priority Areas**: Identify tracts with both high eviction filings and high SVI scores (purple areas on the map) as primary intervention targets
-- **Resource Optimization**: Direct limited funding and staff resources to areas where they will have the greatest impact
-- **Prevention Focus**: Target high-risk areas before evictions lead to homelessness
+- Identify tracts with both high eviction filings and high SVI scores (purple areas on the map) as primary intervention targets
+- Direct limited funding and staff resources to areas where they will have the greatest impact
+- Target high-risk areas before evictions lead to homelessness
 
-### **Evidence-Based Program Design**
-- **Data-Driven Decisions**: Use spatial patterns to inform program development and service delivery strategies
-- **Community Needs Assessment**: Understand the specific vulnerabilities and challenges in each tract
-- **Partnership Opportunities**: Identify areas where multiple organizations can collaborate for comprehensive support
+### **Program Design**
+- Use spatial patterns to inform program development and service delivery strategies
+- Identify areas where multiple organizations can collaborate for comprehensive support
 
 ### **Proactive Intervention Strategies**
-- **Early Warning System**: Monitor tracts with increasing eviction rates to implement preventive measures
-- **Legal Aid Distribution**: Direct tenant rights education and legal assistance to high-eviction areas
-- **Housing Stability Programs**: Target rental assistance and housing counseling in vulnerable communities
-- **Social Services Coordination**: Connect residents in high-risk areas with available support services
+- Direct tenant rights education and legal assistance to high-eviction areas
+- Target rental assistance and housing counseling in vulnerable communities
+- Connect residents in high-risk areas with available support services
 
 ### **Policy and Advocacy Support**
-- **Data Visualization**: Provide compelling visual evidence for policy makers and funders
-- **Impact Measurement**: Track changes in eviction rates and vulnerability over time
-- **Grant Applications**: Support funding requests with quantitative evidence of need
+- Provide compelling visual evidence for policy makers and funders
+- Track changes in eviction rates and vulnerability over time
+- Support Grant Applications with quantitative evidence of need
 
 ## Features
 
@@ -153,6 +153,10 @@ Homelessness/
 └── .gitignore                         # Git ignore file
 ```
 
+## Future Development
+
+The next phase will map nonprofit and service organization locations in Franklin County using GEOID integration. This will allow for us to idenfy areas with high need but limited service coverage and where organizations can collaborate or expand services. Moreover, we will be able to visualzie exsiting service networks, identify partnership opportuniteis, and connect community needs with available resources.
+
 ## Data Privacy & Public Use
 
 All data used in this project is publicly available:
@@ -175,9 +179,6 @@ Feel free to contribute by:
 This project is open source and available under the MIT License.
 
 ## Acknowledgments
-
-- **Eviction Tracking System**: Princeton University
-- **Social Vulnerability Index**: CDC/ATSDR
 - **R Shiny**: RStudio
 - **Leaflet**: Open source mapping library
 
