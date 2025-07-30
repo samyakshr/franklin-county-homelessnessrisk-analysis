@@ -4,7 +4,7 @@
 
 This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
 
-Created by Samyak Shrestha | Special thanks to Dr. Ayaz Hyder and Dylan Sansone!
+Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone!
 
 ## Impact on Community Interventions
 
