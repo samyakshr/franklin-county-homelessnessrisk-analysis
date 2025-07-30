@@ -33,8 +33,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 
 - **Interactive Bivariate Mapping**: Visualize both eviction filings and SVI data simultaneously
 - **Multiple View Modes**: Switch between bivariate, SVI-only, or eviction-only views
-- **Real-time Statistics**: Dynamic statistics panel showing key metrics
-- **Professional UI**: Clean, modern interface with black background
+- **Real-time Statistics**: Statistics panel showing key metrics
 - **Hover Information**: Detailed popups with tract-specific information
 - **Layer Controls**: Multiple map tile options (Light, Street, Satellite)
 
