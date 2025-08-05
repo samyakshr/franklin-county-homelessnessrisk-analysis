@@ -47,7 +47,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - **Coverage**: Franklin County census tracts
 - **Format**: Shapefile with 328 tracts
 
-## Data Limitations & Interpretation
+## Data Limitations 
 
 This analysis captures eviction court filings (not actual evictions) and uses SVI as a composite vulnerability measure. The temporal gap between 2022 SVI data and 2024-2025 eviction data can reveal areas where recent patterns differ from historical vulnerability trends, indicating emerging risks or successful interventions. The bivariate classification uses relative thresholds based on median values and shows spatial relationships rather than causal connections. Use this analysis alongside local knowledge and additional data sources for comprehensive community planning.
 
