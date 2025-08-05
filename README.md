@@ -2,8 +2,6 @@
 
 ![Bivariate Map of Franklin County Eviction and Social Vulnerability Analysis](Screenshot.png)
 
-*Interactive bivariate map showing the relationship between eviction filings and social vulnerability index across Franklin County census tracts. Purple areas indicate high-risk regions with both high eviction rates and high social vulnerability.*
-
 ## Overview
 
 This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
@@ -14,24 +12,11 @@ Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dy
 
 This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high eviction rates combined with high social vulnerability, these organizations can:
 
-### **Targeted Resource Allocation**
-- Identify tracts with both high eviction filings and high SVI scores (purple areas on the map) as primary intervention targets
-- Direct limited funding and staff resources to areas where they will have the greatest impact
-- Target high-risk areas before evictions lead to homelessness
+- Focus resources on areas with both high eviction filings and high SVI scores to maximize impact.
+- Use spatial data to guide program design and identify opportunities for collaborative service delivery.
+- Deploy proactive interventions like legal aid, rental assistance, and tenant education in high-risk communities.
+- Support policy, advocacy, and grant applications with clear, data driven evidence of need and changing conditions.
 
-### **Program Design**
-- Use spatial patterns to inform program development and service delivery strategies
-- Identify areas where multiple organizations can collaborate for comprehensive support
-
-### **Proactive Intervention Strategies**
-- Direct tenant rights education and legal assistance to high-eviction areas
-- Target rental assistance and housing counseling in vulnerable communities
-- Connect residents in high-risk areas with available support services
-
-### **Policy and Advocacy Support**
-- Provide compelling visual evidence for policy makers and funders
-- Track changes in eviction rates and vulnerability over time
-- Support Grant Applications with quantitative evidence of need
 
 ## Features
 
@@ -134,14 +119,6 @@ Based on the 12-month analysis (July 2024 - June 2025):
 - **Maximum Filings**: 348 (Tract 75.53)
 - **Census Tracts Analyzed**: 328
 
-## Bivariate Classification
-
-The map uses a four-category classification system:
-- **Purple**: High SVI + High Eviction Filings
-- **Red**: High SVI + Low Eviction Filings  
-- **Blue**: Low SVI + High Eviction Filings
-- **Gray**: Low SVI + Low Eviction Filings
-
 ## Project Structure
 
 ```
@@ -167,8 +144,6 @@ All data used in this project is publicly available:
 - SVI data from Franklin County Cares
 - Geographic boundaries from standard census sources
 
-This repository is suitable for public GitHub hosting as it contains no sensitive or private information.
-
 ## Contributing
 
 Feel free to contribute by:
@@ -180,10 +155,6 @@ Feel free to contribute by:
 ## License
 
 This project is open source and available under the MIT License.
-
-## Acknowledgments
-- **R Shiny**: RStudio
-- **Leaflet**: Open source mapping library
 
 ## References
 
