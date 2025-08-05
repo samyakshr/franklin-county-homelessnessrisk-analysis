@@ -6,6 +6,8 @@
 
 This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
 
+**This is a work in progress project.** The analysis and application are being actively developed and refined.
+
 Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone!
 
 ## Impact on Community Interventions
@@ -22,7 +24,6 @@ This analysis provides insights for organizations like Smart Columbus and other 
 
 - **Interactive Bivariate Mapping**: Visualize both eviction filings and SVI data simultaneously
 - **Multiple View Modes**: Switch between bivariate, SVI-only, or eviction-only views
-- **Real-time Statistics**: Statistics panel showing key metrics
 - **Hover Information**: Detailed popups with tract-specific information
 - **Layer Controls**: Multiple map tile options (Light, Street, Satellite)
 
@@ -45,6 +46,10 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - **Source**: Franklin County SVI Data (ESRI Shapefile)
 - **Coverage**: Franklin County census tracts
 - **Format**: Shapefile with 328 tracts
+
+## Data Limitations & Interpretation
+
+This analysis captures eviction court filings (not actual evictions) and uses SVI as a composite vulnerability measure. The temporal gap between 2022 SVI data and 2024-2025 eviction data can reveal areas where recent patterns differ from historical vulnerability trends, indicating emerging risks or successful interventions. The bivariate classification uses relative thresholds based on median values and shows spatial relationships rather than causal connections. Use this analysis alongside local knowledge and additional data sources for comprehensive community planning.
 
 ## Installation & Setup
 
@@ -133,9 +138,9 @@ Homelessness/
 └── .gitignore                         # Git ignore file
 ```
 
-## Future Development
+## Next Phase
 
-The next phase will map nonprofit and service organization locations in Franklin County using GEOID integration. This will allow for us to idenfy areas with high need but limited service coverage and where organizations can collaborate or expand services. Moreover, we will be able to visualzie exsiting service networks, identify partnership opportuniteis, and connect community needs with available resources.
+The next phase will map nonprofit and service organization locations in Franklin County using GEOID integration. This will allow for us to identify areas with high need but limited service coverage and where organizations can collaborate or expand services. Moreover, we will be able to visualize exsiting service networks, identify partnership opportunities, and connect community needs with available resources.
 
 ## Data Privacy & Public Use
 
