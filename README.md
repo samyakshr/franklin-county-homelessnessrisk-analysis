@@ -142,21 +142,6 @@ Homelessness/
 
 The next phase will map nonprofit and service organization locations in Franklin County using GEOID integration. This will allow for us to identify areas with high need but limited service coverage and where organizations can collaborate or expand services. Moreover, we will be able to visualize exsiting service networks, identify partnership opportunities, and connect community needs with available resources.
 
-## Data Privacy & Public Use
-
-All data used in this project is publicly available:
-- Eviction data from Princeton University's Eviction Tracking System
-- SVI data from Franklin County Cares
-- Geographic boundaries from standard census sources
-
-## Contributing
-
-Feel free to contribute by:
-- Reporting bugs
-- Suggesting new features
-- Improving documentation
-- Adding additional analyses
-
 ## License
 
 This project is open source and available under the MIT License.
