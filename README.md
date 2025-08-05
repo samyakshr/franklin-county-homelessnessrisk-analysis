@@ -1,5 +1,9 @@
 # Franklin County Eviction & Social Vulnerability Analysis
 
+![Bivariate Map of Franklin County Eviction and Social Vulnerability Analysis](Screenshot.png)
+
+*Interactive bivariate map showing the relationship between eviction filings and social vulnerability index across Franklin County census tracts. Purple areas indicate high-risk regions with both high eviction rates and high social vulnerability.*
+
 ## Overview
 
 This project creates a bivariate map showing both eviction filing data and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors.
