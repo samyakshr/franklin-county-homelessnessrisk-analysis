@@ -9,15 +9,14 @@ library(dplyr)
 library(readr)
 library(RColorBrewer)
 
-# Load data
 bivariate_data <- read_csv("eviction_svi_bivariate_data_12months.csv")
 franklin_svi <- st_read("Franklin County SVI Data.shp")
 
-# Fix data types
+#Fix data types
 bivariate_data$GEOID <- as.character(bivariate_data$GEOID)
 franklin_svi$GEOID <- as.character(franklin_svi$GEOID)
 
-# Merge data
+#Merge data
 map_data <- franklin_svi %>%
   left_join(bivariate_data, by = "GEOID") %>%
   filter(!is.na(total_filings_12months)) %>%
@@ -31,8 +30,7 @@ map_data <- franklin_svi %>%
 cat("Map data loaded successfully!\n")
 cat("Number of tracts with data:", nrow(map_data), "\n")
 
-# Color palettes
-svi_pal <- colorNumeric(
+svi_pal <- colorNumeric( #Color Palettes
   palette = "Reds",
   domain = map_data$SVI_normalized,
   na.color = "transparent"
@@ -44,7 +42,7 @@ eviction_pal <- colorNumeric(
   na.color = "transparent"
 )
 
-# Bivariate color function
+#Bivariate color function
 create_bivariate_palette <- function(data) {
   colors <- sapply(1:nrow(data), function(i) {
     svi_val <- data$SVI_normalized[i]
@@ -69,7 +67,7 @@ create_bivariate_palette <- function(data) {
   return(colors)
 }
 
-# UI
+#User Interface
 ui <- fluidPage(
   tags$head(
     tags$style(HTML("
@@ -232,20 +230,20 @@ ui <- fluidPage(
     "))
   ),
   
-  # Header
+  #Header
   div(class = "header",
     h1("Franklin County Eviction & Social Vulnerability Analysis"),
     p("Interactive Bivariate Map: 12-Month Eviction Filings (July 2024 - June 2025) + Social Vulnerability Index")
   ),
   
-  # Main layout
+  #Main layout
   fluidRow(
     # Sidebar panel
     column(width = 3,
       div(class = "sidebar",
         h3("Map Controls"),
         
-        # Map type selection
+        #Map type selection
         div(class = "form-group",
           h5("Map Visualization Type:"),
           selectInput("map_type", 
@@ -256,7 +254,7 @@ ui <- fluidPage(
                      selected = "Bivariate (SVI + Eviction)")
         ),
         
-        # Color palette for individual maps
+        #Color palette for individual maps
         div(class = "form-group",
           h5("Color Palette:"),
           selectInput("color_palette", 
@@ -267,7 +265,7 @@ ui <- fluidPage(
                      selected = "Reds")
         ),
         
-        # Opacity control
+        #Opacity control
         div(class = "form-group",
           h5("Polygon Opacity:"),
           sliderInput("opacity", 
@@ -278,7 +276,7 @@ ui <- fluidPage(
                      step = 0.1)
         ),
         
-        # Information about the data
+        #Information about the data
         h4("Data Information"),
         div(class = "info-box",
           h4("Time Period"),
@@ -287,13 +285,13 @@ ui <- fluidPage(
           p("SVI data represents social vulnerability index")
         ),
         
-        # Statistics
+        #Statistics
         h4("Statistics"),
         div(class = "stats-box",
           verbatimTextOutput("stats")
         ),
         
-        # Legend explanation
+        #Legend 
         h4("Bivariate Legend"),
         div(class = "legend-box",
           div(class = "legend-item",
@@ -316,7 +314,7 @@ ui <- fluidPage(
       )
     ),
     
-    # Main map panel
+    #Main map panel
     column(width = 9,
       div(class = "map-container",
         leafletOutput("map", height = "85vh")
@@ -327,7 +325,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  # Reactive color palette
+  #Reactive color palette
   reactive_pal <- reactive({
     colorNumeric(
       palette = input$color_palette,
@@ -340,14 +338,14 @@ server <- function(input, output, session) {
     )
   })
   
-  # Create the map
+  #Create the map
   output$map <- renderLeaflet({
     leaflet(map_data) %>%
       addProviderTiles(providers$CartoDB.Positron, group = "Light") %>%
       addProviderTiles(providers$OpenStreetMap, group = "Street") %>%
       addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
       
-      # Add polygons with data
+      #Add polygons with data
       addPolygons(
         fillColor = if(input$map_type == "Bivariate (SVI + Eviction)") {
           create_bivariate_palette(map_data)
@@ -387,7 +385,7 @@ server <- function(input, output, session) {
         )
       ) %>%
       
-      # Add legend based on map type
+      #Add legend based on map type
       addLegend(
         position = "bottomright",
         pal = if(input$map_type == "Bivariate (SVI + Eviction)") {
@@ -420,17 +418,17 @@ server <- function(input, output, session) {
         }
       ) %>%
 
-      # Add layer controls
+      #Add layer controls
       addLayersControl(
         baseGroups = c("Light", "Street", "Satellite"),
         options = layersControlOptions(collapsed = FALSE)
       ) %>%
       
-      # Set view to Franklin County
+      #Set view to Franklin County
       setView(lng = -82.9988, lat = 39.9612, zoom = 10)
   })
   
-  # Update map when controls change
+  #Update map when controls change
   observe({
     leafletProxy("map") %>%
       clearShapes() %>%
@@ -475,7 +473,7 @@ server <- function(input, output, session) {
       )
   })
   
-  # Statistics output
+  #Statistics output
   output$stats <- renderPrint({
     cat("12-Month Eviction Statistics\n")
     cat("===============================\n\n")
@@ -494,5 +492,5 @@ server <- function(input, output, session) {
   })
 }
 
-# Run the app
+#Run app
 shinyApp(ui = ui, server = server) 
