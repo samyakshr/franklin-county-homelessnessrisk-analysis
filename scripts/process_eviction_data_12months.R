@@ -5,7 +5,7 @@ library(dplyr)
 library(readr)
 library(sf)
 
-columbus_data <- read_csv("data/raw/columbus_monthly_2020_2021.csv") #load and clean data
+columbus_data <- read_csv("../data/raw/columbus_monthly_2020_2021.csv") #load and clean data
 columbus_clean <- columbus_data %>% 
   filter(GEOID != "sealed" & !is.na(GEOID)) %>%
   mutate(GEOID = as.character(GEOID))
@@ -29,7 +29,7 @@ eviction_12months <- recent_data %>% #sum filings by tract
     .groups = 'drop'
   )
 
-franklin_svi <- st_read("data/raw/Franklin County SVI Data.shp")
+franklin_svi <- st_read("../data/raw/Franklin County SVI Data.shp")
 franklin_svi$GEOID <- as.character(franklin_svi$GEOID)
 
 tract_info <- franklin_svi %>%
@@ -59,7 +59,7 @@ bivariate_data_12months <- eviction_rates_12months %>%
     eviction_rate_normalized = eviction_rate_12months / max(eviction_rate_12months, na.rm = TRUE)
   )
 
-write_csv(bivariate_data_12months, "data/processed/eviction_svi_bivariate_data_12months.csv")
+write_csv(bivariate_data_12months, "../data/processed/eviction_svi_bivariate_data_12months.csv")
 
 #Print summary
 cat("=== 12-Month Eviction Analysis (July 2024 - June 2025) ===\n")

@@ -90,7 +90,7 @@ install.packages(c(
    
    Or from terminal:
    ```bash
-   Rscript scripts/hRisk_app.R
+   Rscript -e "shiny::runApp('scripts/hRisk_app.R', port = 3838, launch.browser = TRUE)"
    ```
 
 3. **Access the application**:
