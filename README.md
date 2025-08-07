@@ -8,7 +8,7 @@ This project creates a bivariate map showing both eviction filing data and Socia
 
 **This is a work in progress project.** The analysis and application are being actively developed and refined.
 
-Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone!
+Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone and the Smart Columbus Team!
 
 ## Impact on Community Interventions
 
