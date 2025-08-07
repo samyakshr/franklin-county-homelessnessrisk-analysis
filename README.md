@@ -128,21 +128,21 @@ Based on the 12-month analysis (July 2024 - June 2025):
 
 ```
 franklin-county-homelessnessrisk-analysis/
-├── README.md                          # This file
-├── images/                            # Screenshots and visualizations
-│   └── Screenshot.png                # App screenshot
-├── data/                              # Data files
-│   ├── raw/                          # Original data files
+├── README.md                          
+├── images/                            
+│   └── Screenshot.png              
+├── data/                              
+│   ├── raw/                        
 │   │   ├── columbus_monthly_2020_2021.csv
 │   │   ├── Franklin County SVI Data.shp
 │   │   ├── data_dictionary_monthly.xlsx
 │   │   └── [other shapefile components]
-│   └── processed/                    # Cleaned and processed data
+│   └── processed/                   
 │       └── eviction_svi_bivariate_data_12months.csv
-├── scripts/                          # R scripts
-│   ├── hRisk_app.R                   # Main Shiny application
+├── scripts/                         
+│   ├── hRisk_app.R                   
 │   └── process_eviction_data_12months.R
-└── docs/                             # Documentation (future use)
+└── docs/                           
 ```
 
 ## Next Phase
