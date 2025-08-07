@@ -9,8 +9,8 @@ library(dplyr)
 library(readr)
 library(RColorBrewer)
 
-bivariate_data <- read_csv("eviction_svi_bivariate_data_12months.csv")
-franklin_svi <- st_read("Franklin County SVI Data.shp")
+bivariate_data <- read_csv("data/processed/eviction_svi_bivariate_data_12months.csv")
+franklin_svi <- st_read("data/raw/Franklin County SVI Data.shp")
 
 #Fix data types
 bivariate_data$GEOID <- as.character(bivariate_data$GEOID)

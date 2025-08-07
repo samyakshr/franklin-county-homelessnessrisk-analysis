@@ -1,6 +1,6 @@
 # Franklin County Eviction & Social Vulnerability Analysis
 
-![Bivariate Map of Franklin County Eviction and Social Vulnerability Analysis](Screenshot.png)
+![Bivariate Map of Franklin County Eviction and Social Vulnerability Analysis](images/Screenshot.png)
 
 ## Overview
 
@@ -70,9 +70,9 @@ install.packages(c(
 ```
 
 ### Data Files Required
-1. `columbus_monthly_2020_2021.csv` - Raw eviction data
-2. `Franklin County SVI Data.shp` - Shapefile with tract boundaries and SVI data
-3. `data_dictionary_monthly.xlsx` - Data dictionary for eviction variables
+1. `data/raw/columbus_monthly_2020_2021.csv` - Raw eviction data
+2. `data/raw/Franklin County SVI Data.shp` - Shapefile with tract boundaries and SVI data
+3. `data/raw/data_dictionary_monthly.xlsx` - Data dictionary for eviction variables
 
 ## Usage
 
@@ -80,17 +80,17 @@ install.packages(c(
 
 1. **Process the data** (first time only):
    ```r
-   source("process_eviction_data_12months.R")
+   source("scripts/process_eviction_data_12months.R")
    ```
 
 2. **Launch the Shiny app**:
    ```r
-   source("hRisk_app.R")
+   source("scripts/hRisk_app.R")
    ```
    
    Or from terminal:
    ```bash
-   Rscript hRisk_app.R
+   Rscript scripts/hRisk_app.R
    ```
 
 3. **Access the application**:
@@ -106,7 +106,7 @@ install.packages(c(
 
 ## Data Processing
 
-The application includes a data processing script (`process_eviction_data_12months.R`) that:
+The application includes a data processing script (`scripts/process_eviction_data_12months.R`) that:
 
 1. Loads raw eviction data from CSV
 2. Filters for the past 12 months (July 2024 - June 2025)
@@ -127,15 +127,22 @@ Based on the 12-month analysis (July 2024 - June 2025):
 ## Project Structure
 
 ```
-Homelessness/
+franklin-county-homelessnessrisk-analysis/
 ├── README.md                          # This file
-├── hRisk_app.R                        # Main Shiny application
-├── process_eviction_data_12months.R   # Data processing script
-├── columbus_monthly_2020_2021.csv     # Raw eviction data
-├── Franklin County SVI Data.shp       # Geographic boundaries + SVI
-├── data_dictionary_monthly.xlsx       # Data dictionary
-├── eviction_svi_bivariate_data_12months.csv  # Processed data
-└── .gitignore                         # Git ignore file
+├── images/                            # Screenshots and visualizations
+│   └── Screenshot.png                # App screenshot
+├── data/                              # Data files
+│   ├── raw/                          # Original data files
+│   │   ├── columbus_monthly_2020_2021.csv
+│   │   ├── Franklin County SVI Data.shp
+│   │   ├── data_dictionary_monthly.xlsx
+│   │   └── [other shapefile components]
+│   └── processed/                    # Cleaned and processed data
+│       └── eviction_svi_bivariate_data_12months.csv
+├── scripts/                          # R scripts
+│   ├── hRisk_app.R                   # Main Shiny application
+│   └── process_eviction_data_12months.R
+└── docs/                             # Documentation (future use)
 ```
 
 ## Next Phase
