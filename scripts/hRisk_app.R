@@ -11,6 +11,8 @@ library(RColorBrewer)
 
 bivariate_data <- read_csv("../data/processed/eviction_svi_bivariate_data_12months.csv")
 franklin_svi <- st_read("../data/raw/Franklin County SVI Data.shp")
+nonprofits <- st_read("../nonprofits_mapped/nonprofit_final_to_geocode.shp") %>%
+  st_transform(crs = st_crs(franklin_svi))
 
 #Fix data types
 bivariate_data$GEOID <- as.character(bivariate_data$GEOID)
@@ -29,6 +31,7 @@ map_data <- franklin_svi %>%
 
 cat("Map data loaded successfully!\n")
 cat("Number of tracts with data:", nrow(map_data), "\n")
+cat("Number of nonprofits loaded:", nrow(nonprofits), "\n")
 
 svi_pal <- colorNumeric( #Color Palettes
   palette = "Reds",
@@ -276,6 +279,14 @@ ui <- fluidPage(
                      step = 0.1)
         ),
         
+        #Nonprofit layer control
+        div(class = "form-group",
+          h5("Nonprofit Organizations:"),
+          checkboxInput("show_nonprofits", 
+                       "Show Nonprofit Locations", 
+                       value = FALSE)
+        ),
+        
         #Information about the data
         h4("Data Information"),
         div(class = "info-box",
@@ -473,13 +484,58 @@ server <- function(input, output, session) {
       )
   })
   
+  #Observer for nonprofit layer visibility
+  observe({
+    leafletProxy("map") %>%
+      clearGroup("Nonprofits")
+    
+    if(input$show_nonprofits) {
+      leafletProxy("map") %>%
+        addCircleMarkers(
+          data = nonprofits,
+          radius = 4,
+          color = "#2c3e50",
+          weight = 2,
+          opacity = 0.8,
+          fillOpacity = 0.6,
+          popup = ~paste(
+            "<div style='font-family: Segoe UI, sans-serif;'>",
+            "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
+            "<p><strong>Name:</strong> ", Organizati, "</p>",
+            "<p><strong>Address:</strong> ", Street_Add, "</p>",
+            "<p><strong>City:</strong> ", City, " ", State, " ", ZIP_Code, "</p>",
+            "</div>"
+          ),
+          label = ~Organizati,
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
+            textsize = "12px",
+            direction = "auto"
+          ),
+          group = "Nonprofits"
+        ) %>%
+        addLayersControl(
+          baseGroups = c("Light", "Street", "Satellite"),
+          overlayGroups = c("Nonprofits"),
+          options = layersControlOptions(collapsed = FALSE)
+        )
+    } else {
+      leafletProxy("map") %>%
+        addLayersControl(
+          baseGroups = c("Light", "Street", "Satellite"),
+          options = layersControlOptions(collapsed = FALSE)
+        )
+    }
+  })
+  
   #Statistics output
   output$stats <- renderPrint({
     cat("12-Month Eviction Statistics\n")
     cat("===============================\n\n")
     cat("Time Period: July 2024 - June 2025\n")
     cat("Total Census Tracts: ", nrow(map_data), "\n")
-    cat("Total Eviction Filings: ", sum(map_data$total_filings_12months, na.rm = TRUE), "\n\n")
+    cat("Total Eviction Filings: ", sum(map_data$total_filings_12months, na.rm = TRUE), "\n")
+    cat("Total Nonprofits: ", nrow(nonprofits), "\n\n")
     cat("Filing Statistics:\n")
     cat("   • Average: ", round(mean(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
     cat("   • Median:  ", round(median(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")

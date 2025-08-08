@@ -24,7 +24,9 @@ This analysis provides insights for organizations like Smart Columbus and other 
 
 - **Interactive Bivariate Mapping**: Visualize both eviction filings and SVI data simultaneously
 - **Multiple View Modes**: Switch between bivariate, SVI-only, or eviction-only views
-- **Hover Information**: Detailed popups with tract-specific information
+- **Nonprofit Layer**: Toggle to show nonprofit organization locations across Franklin County
+- **Real-time Statistics**: Statistics panel showing key metrics including nonprofit count
+- **Hover Information**: Detailed popups with tract-specific information and nonprofit details
 - **Layer Controls**: Multiple map tile options (Light, Street, Satellite)
 
 ## Data Sources
@@ -33,19 +35,14 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - **Source**: Eviction Tracking System (Princeton University)
 - **Coverage**: Columbus, Ohio monthly eviction filings
 - **Time Period**: July 2024 - June 2025 (12 months)
-- **Level**: Census tract
-- **Variables**: Total eviction filings per tract
 
 ### Social Vulnerability Index (SVI)
 - **Source**: CDC/ATSDR Social Vulnerability Index
 - **Coverage**: Franklin County, Ohio
-- **Level**: Census tract
-- **Variables**: Composite vulnerability score
 
 ### Geographic Data
 - **Source**: Franklin County SVI Data (ESRI Shapefile)
 - **Coverage**: Franklin County census tracts
-- **Format**: Shapefile with 328 tracts
 
 ## Data Limitations 
 
@@ -102,6 +99,7 @@ install.packages(c(
 - **Map Visualization Type**: Choose between bivariate, SVI-only, or eviction-only views
 - **Color Palette**: Select different color schemes for individual variable maps
 - **Opacity**: Adjust polygon transparency
+- **Nonprofit Organizations**: Toggle to show/hide nonprofit locations on the map
 - **Layer Controls**: Switch between different map backgrounds
 
 ## Data Processing
@@ -139,15 +137,14 @@ franklin-county-homelessnessrisk-analysis/
 │   │   └── [other shapefile components]
 │   └── processed/                   
 │       └── eviction_svi_bivariate_data_12months.csv
+├── nonprofits_mapped/                 
+│   ├── nonprofit_final_to_geocode.shp
+│   └── [other shapefile components]
 ├── scripts/                         
 │   ├── hRisk_app.R                   
 │   └── process_eviction_data_12months.R
 └── docs/                           
 ```
-
-## Next Phase
-
-The next phase will map nonprofit and service organization locations in Franklin County using GEOID integration. This will allow for us to identify areas with high need but limited service coverage and where organizations can collaborate or expand services. Moreover, we will be able to visualize exsiting service networks, identify partnership opportunities, and connect community needs with available resources.
 
 ## License
 
