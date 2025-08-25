@@ -14,6 +14,21 @@ franklin_svi <- st_read("../data/raw/Franklin County SVI Data.shp")
 nonprofits <- st_read("../nonprofits_mapped/nonprofit_final_to_geocode.shp") %>%
   st_transform(crs = st_crs(franklin_svi))
 
+# Load population data from Census Bureau
+population_data <- read_csv("../ACSDT5Y2023.B01003-Data.csv", skip = 1) %>%
+  select(Geography, `Geographic Area Name`, `Estimate!!Total`, `Margin of Error!!Total`) %>%
+  rename(
+    GEO_ID = Geography,
+    census_tract_name = `Geographic Area Name`,
+    total_population = `Estimate!!Total`,
+    population_margin_error = `Margin of Error!!Total`
+  ) %>%
+  # Clean GEO_ID to match GEOID format (remove "1400000US" prefix)
+  mutate(
+    GEOID = gsub("1400000US", "", GEO_ID),
+    .before = GEO_ID
+  )
+
 #Fix data types
 bivariate_data$GEOID <- as.character(bivariate_data$GEOID)
 franklin_svi$GEOID <- as.character(franklin_svi$GEOID)
@@ -21,17 +36,21 @@ franklin_svi$GEOID <- as.character(franklin_svi$GEOID)
 #Merge data
 map_data <- franklin_svi %>%
   left_join(bivariate_data, by = "GEOID") %>%
+  left_join(population_data, by = "GEOID") %>%
   filter(!is.na(total_filings_12months)) %>%
   mutate(
     NAME = NAME.x,
     ALAND = ALAND.x,
-    AWATER = AWATER.x
+    AWATER = AWATER.x,
+    # Calculate eviction rate per 1,000 residents
+    eviction_rate_per_1000 = round((total_filings_12months / total_population) * 1000, 2)
   ) %>%
   select(-NAME.y, -ALAND.y, -AWATER.y)
 
 cat("Map data loaded successfully!\n")
 cat("Number of tracts with data:", nrow(map_data), "\n")
 cat("Number of nonprofits loaded:", nrow(nonprofits), "\n")
+cat("Population data loaded for", sum(!is.na(map_data$total_population)), "tracts\n")
 
 svi_pal <- colorNumeric( #Color Palettes
   palette = "Reds",
@@ -241,7 +260,7 @@ ui <- fluidPage(
   
   #Main layout
   fluidRow(
-    # Sidebar panel
+    #Sidebar panel
     column(width = 3,
       div(class = "sidebar",
         h3("Map Controls"),
@@ -382,13 +401,15 @@ server <- function(input, output, session) {
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
           "<h5 style='color: #e74c3c; margin: 10px 0;'>Eviction Data (Jul 2024 - Jun 2025)</h5>",
           "<p><strong>Total Filings:</strong> ", total_filings_12months, "</p>",
-          "<p><strong>Estimated Population:</strong> ", round(estimated_population, 0), "</p>",
+          "<p><strong>Eviction Rate:</strong> ", ifelse(is.na(eviction_rate_per_1000), "N/A", paste(eviction_rate_per_1000, "per 1,000 residents")), "</p>",
+          "<p><strong>Total Population (2023):</strong> ", ifelse(is.na(total_population), "N/A", format(total_population, big.mark = ",")), "</p>",
+          "<p><strong>Population Margin of Error:</strong> ", ifelse(is.na(population_margin_error), "N/A", format(population_margin_error, big.mark = ",")), "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
           "<h5 style='color: #3498db; margin: 10px 0;'>Social Vulnerability</h5>",
           "<p><strong>SVI Value:</strong> ", round(SVI_normalized, 4), "</p>",
           "</div>"
         ),
-        label = ~paste("Tract:", NAME, "| Filings:", total_filings_12months, "| SVI:", round(SVI_normalized, 3)),
+        label = ~paste("Tract:", NAME, "| Pop:", ifelse(is.na(total_population), "N/A", format(total_population, big.mark = ",")), "| Filings:", total_filings_12months, "| Rate:", ifelse(is.na(eviction_rate_per_1000), "N/A", eviction_rate_per_1000), "| SVI:", round(SVI_normalized, 3)),
         labelOptions = labelOptions(
           style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
           textsize = "12px",
@@ -469,13 +490,15 @@ server <- function(input, output, session) {
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
           "<h5 style='color: #e74c3c; margin: 10px 0;'>Eviction Data (Jul 2024 - Jun 2025)</h5>",
           "<p><strong>Total Filings:</strong> ", total_filings_12months, "</p>",
-          "<p><strong>Estimated Population:</strong> ", round(estimated_population, 0), "</p>",
+          "<p><strong>Eviction Rate:</strong> ", ifelse(is.na(eviction_rate_per_1000), "N/A", paste(eviction_rate_per_1000, "per 1,000 residents")), "</p>",
+          "<p><strong>Total Population (2023):</strong> ", ifelse(is.na(total_population), "N/A", format(total_population, big.mark = ",")), "</p>",
+          "<p><strong>Population Margin of Error:</strong> ", ifelse(is.na(population_margin_error), "N/A", format(population_margin_error, big.mark = ",")), "</p>",
           "<hr style='border: 1px solid #ecf0f1; margin: 10px 0;'>",
           "<h5 style='color: #3498db; margin: 10px 0;'>Social Vulnerability</h5>",
           "<p><strong>SVI Value:</strong> ", round(SVI_normalized, 4), "</p>",
           "</div>"
         ),
-        label = ~paste("Tract:", NAME, "| Filings:", total_filings_12months, "| SVI:", round(SVI_normalized, 3)),
+        label = ~paste("Tract:", NAME, "| Pop:", ifelse(is.na(total_population), "N/A", format(total_population, big.mark = ",")), "| Filings:", total_filings_12months, "| Rate:", ifelse(is.na(eviction_rate_per_1000), "N/A", eviction_rate_per_1000), "| SVI:", round(SVI_normalized, 3)),
         labelOptions = labelOptions(
           style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
           textsize = "12px",
@@ -536,6 +559,17 @@ server <- function(input, output, session) {
     cat("Total Census Tracts: ", nrow(map_data), "\n")
     cat("Total Eviction Filings: ", sum(map_data$total_filings_12months, na.rm = TRUE), "\n")
     cat("Total Nonprofits: ", nrow(nonprofits), "\n\n")
+    cat("Population Statistics (2023):\n")
+    cat("   • Total Population: ", format(sum(map_data$total_population, na.rm = TRUE), big.mark = ","), "\n")
+    cat("   • Average per Tract: ", format(round(mean(map_data$total_population, na.rm = TRUE), 0), big.mark = ","), "\n")
+    cat("   • Median per Tract:  ", format(round(median(map_data$total_population, na.rm = TRUE), 0), big.mark = ","), "\n")
+    cat("   • Maximum: ", format(max(map_data$total_population, na.rm = TRUE), big.mark = ","), "\n")
+    cat("   • Minimum: ", format(min(map_data$total_population, na.rm = TRUE), big.mark = ","), "\n\n")
+    cat("Eviction Rate Statistics (per 1,000 residents):\n")
+    cat("   • Average Rate: ", round(mean(map_data$eviction_rate_per_1000, na.rm = TRUE), 2), "\n")
+    cat("   • Median Rate:  ", round(median(map_data$eviction_rate_per_1000, na.rm = TRUE), 2), "\n")
+    cat("   • Maximum Rate: ", round(max(map_data$eviction_rate_per_1000, na.rm = TRUE), 2), "\n")
+    cat("   • Minimum Rate: ", round(min(map_data$eviction_rate_per_1000, na.rm = TRUE), 2), "\n\n")
     cat("Filing Statistics:\n")
     cat("   • Average: ", round(mean(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
     cat("   • Median:  ", round(median(map_data$total_filings_12months, na.rm = TRUE), 1), "\n")
