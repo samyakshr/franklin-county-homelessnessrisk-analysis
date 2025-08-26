@@ -68,18 +68,18 @@ eviction_pal <- colorNumeric(
 create_bivariate_palette <- function(data) {
   colors <- sapply(1:nrow(data), function(i) {
     svi_val <- data$SVI_normalized[i]
-    eviction_val <- data$total_filings_12months[i]
+    eviction_rate_val <- data$eviction_rate_per_1000[i]
     
-    if (is.na(svi_val) || is.na(eviction_val)) return("#f0f0f0")
+    if (is.na(svi_val) || is.na(eviction_rate_val)) return("#f0f0f0")
     
     svi_high <- svi_val > 0.5
-    eviction_high <- eviction_val > median(data$total_filings_12months, na.rm = TRUE)
+    eviction_rate_high <- eviction_rate_val > median(data$eviction_rate_per_1000, na.rm = TRUE)
     
-    if (svi_high && eviction_high) {
+    if (svi_high && eviction_rate_high) {
       return("#8e44ad")  # Purple
-    } else if (svi_high && !eviction_high) {
+    } else if (svi_high && !eviction_rate_high) {
       return("#e74c3c")  # Red
-    } else if (!svi_high && eviction_high) {
+    } else if (!svi_high && eviction_rate_high) {
       return("#3498db")  # Blue
     } else {
       return("#ecf0f1")  # Gray
@@ -255,7 +255,7 @@ ui <- fluidPage(
   #Header
   div(class = "header",
     h1("Franklin County Eviction & Social Vulnerability Analysis"),
-    p("Interactive Bivariate Map: 12-Month Eviction Filings (July 2024 - June 2025) + Social Vulnerability Index")
+    p("Interactive Bivariate Map: Eviction Rate per 1,000 Residents (July 2024 - June 2025) + Social Vulnerability Index")
   ),
   
   #Main layout
@@ -423,15 +423,15 @@ server <- function(input, output, session) {
         pal = if(input$map_type == "Bivariate (SVI + Eviction)") {
           colorFactor(
             palette = c("#8e44ad", "#e74c3c", "#3498db", "#ecf0f1"),
-            domain = c("High SVI + High Eviction", "High SVI + Low Eviction", 
-                      "Low SVI + High Eviction", "Low SVI + Low Eviction")
+            domain = c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
+                      "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
           )
         } else {
           reactive_pal()
         },
         values = if(input$map_type == "Bivariate (SVI + Eviction)") {
-          c("High SVI + High Eviction", "High SVI + Low Eviction", 
-            "Low SVI + High Eviction", "Low SVI + Low Eviction")
+          c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
+            "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
         } else {
           if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$total_filings_12months
         },
