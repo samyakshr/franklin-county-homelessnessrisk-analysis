@@ -76,9 +76,9 @@ create_bivariate_palette <- function(data) {
     eviction_rate_high <- eviction_rate_val > median(data$eviction_rate_per_1000, na.rm = TRUE)
     
     if (svi_high && eviction_rate_high) {
-      return("#8e44ad")  # Purple
+      return("#e74c3c")  # Red - Highest urgency
     } else if (svi_high && !eviction_rate_high) {
-      return("#e74c3c")  # Red
+      return("#8e44ad")  # Purple
     } else if (!svi_high && eviction_rate_high) {
       return("#3498db")  # Blue
     } else {
@@ -422,7 +422,7 @@ server <- function(input, output, session) {
         position = "bottomright",
         pal = if(input$map_type == "Bivariate (SVI + Eviction)") {
           colorFactor(
-            palette = c("#8e44ad", "#e74c3c", "#3498db", "#ecf0f1"),
+            palette = c("#e74c3c", "#8e44ad", "#3498db", "#ecf0f1"),
             domain = c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
                       "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
           )
