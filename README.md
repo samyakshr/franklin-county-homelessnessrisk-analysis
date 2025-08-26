@@ -4,7 +4,7 @@
 
 ## Overview
 
-This project creates an interactive bivariate map showing eviction rates (per 1,000 residents) and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors, providing a comprehensive tool for identifying high-risk areas and planning community interventions.
+This project creates an interactive bivariate map showing eviction rates (per 1,000 residents) and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors, providing a tool for identifying high-risk areas and planning community interventions.
 
 **This is a work in progress project.** The analysis and application are being actively developed and refined.
 
@@ -160,9 +160,9 @@ franklin-county-homelessnessrisk-analysis/
 ├── scripts/                         
 │   ├── hRisk_app.R                   
 │   └── process_eviction_data_12months.R
-├── ACSDT5Y2023.B01003-Data.csv      # U.S. Census Bureau population data
-├── data_dictionary.csv               # Comprehensive variable documentation
-└── .gitignore                        # Git ignore file
+├── ACSDT5Y2023.B01003-Data.csv      
+├── data_dictionary.csv              
+└── .gitignore                     
 ```
 
 ## License
