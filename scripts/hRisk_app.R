@@ -211,23 +211,48 @@ ui <- fluidPage(
 
   # Tab navigation + content
   div(
-    style = "text-align: center; margin: 20px;",
+    style = "margin: 20px;",
     tags$style(HTML("
-      .nav-tabs { border-bottom: none; margin-bottom: 0; }
+      .nav-tabs { 
+        border-bottom: none; 
+        margin-bottom: 0; 
+        display: flex;
+        justify-content: center;
+        padding-left: 0;
+        list-style: none;
+      }
+      .nav-tabs > li { 
+        display: inline-block; 
+        margin: 0 5px;
+      }
       .nav-tabs > li > a {
         background: rgba(255, 255, 255, 0.9);
         border: 2px solid #3498db;
         border-radius: 10px 10px 0 0;
-        margin-right: 5px; color: #2c3e50; font-weight: 500;
-        padding: 12px 25px; transition: all 0.3s ease;
+        color: #2c3e50; 
+        font-weight: 500;
+        padding: 12px 25px; 
+        transition: all 0.3s ease;
+        display: block;
+        text-decoration: none;
       }
-      .nav-tabs > li > a:hover { background: #3498db; color: white; border-color: #3498db; }
-      .nav-tabs > li.active > a { background: #3498db; color: white; border-color: #3498db; }
+      .nav-tabs > li > a:hover { 
+        background: #3498db; 
+        color: white; 
+        border-color: #3498db; 
+      }
+      .nav-tabs > li.active > a { 
+        background: #3498db; 
+        color: white; 
+        border-color: #3498db; 
+      }
       .tab-content {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 0 10px 10px 10px;
-        border: 2px solid #3498db; border-top: none;
-        padding: 25px; margin: 0 20px 20px 20px;
+        border: 2px solid #3498db; 
+        border-top: none;
+        padding: 25px; 
+        margin: 0 20px 20px 20px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       }
     ")),
