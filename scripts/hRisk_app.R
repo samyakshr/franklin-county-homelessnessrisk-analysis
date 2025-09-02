@@ -43,7 +43,11 @@ map_data <- franklin_svi %>%
     ALAND = ALAND.x,
     AWATER = AWATER.x,
     # Calculate eviction rate per 1,000 residents
-    eviction_rate_per_1000 = round((total_filings_12months / total_population) * 1000, 2)
+    eviction_rate_per_1000 = ifelse(
+      is.na(total_population) | total_population == 0, 
+      NA, 
+      round((total_filings_12months / total_population) * 1000, 2)
+    )
   ) %>%
   select(-NAME.y, -ALAND.y, -AWATER.y)
 
@@ -431,15 +435,23 @@ server <- function(input, output, session) {
   
   #Reactive color palette
   reactive_pal <- reactive({
-    colorNumeric(
-      palette = input$color_palette,
-      domain = if(input$map_type == "SVI Only") {
-        map_data$SVI_normalized
-      } else {
-        map_data$total_filings_12months
-      },
-      na.color = "transparent"
-    )
+    domain_values <- if(input$map_type == "SVI Only") {
+      map_data$SVI_normalized
+    } else if(input$map_type == "Eviction Rate Only") {
+      map_data$eviction_rate_per_1000
+    } else {
+      map_data$total_filings_12months
+    }
+    
+    # Remove NA, Inf, and NaN values from domain
+    domain_values <- domain_values[!is.na(domain_values) & is.finite(domain_values)]
+    
+    if(length(domain_values) == 0) {
+      # Return a dummy palette if no valid values
+      colorNumeric(palette = input$color_palette, domain = c(0, 1), na.color = "transparent")
+    } else {
+      colorNumeric(palette = input$color_palette, domain = domain_values, na.color = "transparent")
+    }
   })
   
   #Create the map
@@ -510,14 +522,24 @@ server <- function(input, output, session) {
           c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
             "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
         } else {
-          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$eviction_rate_per_1000
+          legend_values <- if(input$map_type == "SVI Only") {
+            map_data$SVI_normalized
+          } else if(input$map_type == "Eviction Rate Only") {
+            map_data$eviction_rate_per_1000
+          } else {
+            map_data$total_filings_12months
+          }
+          # Remove NA, Inf, and NaN values
+          legend_values[!is.na(legend_values) & is.finite(legend_values)]
         },
         title = if(input$map_type == "Bivariate (SVI + Eviction)") {
           "Bivariate Classification"
         } else if(input$map_type == "SVI Only") {
           "SVI Values"
+        } else if(input$map_type == "Eviction Rate Only") {
+          "Eviction Rate (per 1,000)"
         } else {
-          "Eviction Rate"
+          "Total Filings"
         },
         opacity = 0.9,
         labFormat = if(input$map_type == "Bivariate (SVI + Eviction)") {
