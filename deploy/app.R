@@ -245,7 +245,7 @@ ui <- fluidPage(
                     choices = c(
                       "Bivariate (SVI + Eviction)" = "Bivariate (SVI + Eviction)",
                       "SVI Only" = "SVI Only",
-                      "Eviction Filings Only" = "Eviction Filings Only"
+                      "Eviction Rate Only" = "Eviction Rate Only"
                     ),
                     selected = "Bivariate (SVI + Eviction)"
                   )
@@ -317,7 +317,7 @@ ui <- fluidPage(
           h2("Data Dictionary & Sources", style = "color: #2c3e50; margin-bottom: 30px;"),
           h3("Data Sources", style = "color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;"),
           h4("1. Eviction Data"),
-          p("• Source: Franklin County Court System"),
+          p("• Source: Eviction Lab"),
           p("• Coverage: Franklin County, Ohio monthly eviction filings"),
           p("• Time Period: July 2024 - June 2025 (12 months)"),
           p("• Processing: Aggregated by census tract and converted to rates per 1,000 residents"),
@@ -333,8 +333,8 @@ ui <- fluidPage(
           p("• Geographic Unit: Census Tract level"),
           p("• File: ACSDT5Y2023.B01003-Data.csv"),
           br(),
-          h4("4. Nonprofit Organizations"),
-          p("• Source: Geocoded nonprofit locations"),
+          h4("4. Geocoded Nonprofit Organizations Locations"),
+          p("• Source: Ayaz Hyder, Samyak Shrestha"),
           p("• Coverage: Franklin County, Ohio"),
           p("• Geographic Unit: Point locations"),
           p("• Total Organizations: 1,342"),
@@ -408,6 +408,17 @@ ui <- fluidPage(
               p("• Population data loaded for all tracts"),
               p("• Nonprofit data includes 1,342 organizations"),
               p("• Missing values handled with conditional formatting in the UI")
+          ),
+          h3("References", style = "color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;"),
+          div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
+              p("U.S. Census Bureau. (2023). American Community Survey 5-Year Estimates (2019-2023). Retrieved from ",
+                a(href = "https://www.census.gov/programs-surveys/acs/", "https://www.census.gov/programs-surveys/acs/")),
+              p("Centers for Disease Control and Prevention. (n.d.). Social Vulnerability Index (SVI). Retrieved from ",
+                a(href = "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html", "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html")),
+              p("Peter Hepburn, Jacob Haas, Renee Louis, Adam Chapnik, Danny Grubbs-Donovan, Olivia Jin, Jasmine Rangel, and Matthew Desmond. Eviction Tracking System: Version 2.0. Princeton: Princeton University, 2020. www.evictionlab.org"),
+              p("U.S. Census Bureau. (2023). TIGER/Line Shapefile, 2023, County: Franklin County, OH - Topological faces polygons with all geocode [Data set]. Retrieved from ",
+                a(href = "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode",
+                  "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode"))
           )
         ) # end inner div of tab 2
       )  # end tabPanel 2

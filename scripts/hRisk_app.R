@@ -245,7 +245,7 @@ ui <- fluidPage(
                     choices = c(
                       "Bivariate (SVI + Eviction)" = "Bivariate (SVI + Eviction)",
                       "SVI Only" = "SVI Only",
-                      "Eviction Filings Only" = "Eviction Filings Only"
+                      "Eviction Rate Only" = "Eviction Rate Only"
                     ),
                     selected = "Bivariate (SVI + Eviction)"
                   )
@@ -408,6 +408,17 @@ ui <- fluidPage(
               p("• Population data loaded for all tracts"),
               p("• Nonprofit data includes 1,342 organizations"),
               p("• Missing values handled with conditional formatting in the UI")
+          ),
+          h3("References", style = "color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;"),
+          div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
+              p("U.S. Census Bureau. (2023). American Community Survey 5-Year Estimates (2019-2023). Retrieved from ",
+                a(href = "https://www.census.gov/programs-surveys/acs/", "https://www.census.gov/programs-surveys/acs/")),
+              p("Centers for Disease Control and Prevention. (n.d.). Social Vulnerability Index (SVI). Retrieved from ",
+                a(href = "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html", "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html")),
+              p("Peter Hepburn, Jacob Haas, Renee Louis, Adam Chapnik, Danny Grubbs-Donovan, Olivia Jin, Jasmine Rangel, and Matthew Desmond. Eviction Tracking System: Version 2.0. Princeton: Princeton University, 2020. www.evictionlab.org"),
+              p("U.S. Census Bureau. (2023). TIGER/Line Shapefile, 2023, County: Franklin County, OH - Topological faces polygons with all geocode [Data set]. Retrieved from ",
+                a(href = "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode",
+                  "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode"))
           )
         ) # end inner div of tab 2
       )  # end tabPanel 2
@@ -445,7 +456,7 @@ server <- function(input, output, session) {
         } else if (input$map_type == "SVI Only") {
           ~reactive_pal()(SVI_normalized)
         } else {
-          ~reactive_pal()(total_filings_12months)
+          ~reactive_pal()(eviction_rate_per_1000)
         },
 
         weight = 1,
@@ -499,14 +510,14 @@ server <- function(input, output, session) {
           c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
             "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
         } else {
-          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$total_filings_12months
+          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$eviction_rate_per_1000
         },
         title = if(input$map_type == "Bivariate (SVI + Eviction)") {
           "Bivariate Classification"
         } else if(input$map_type == "SVI Only") {
           "SVI Values"
         } else {
-          "Eviction Filings"
+          "Eviction Rate"
         },
         opacity = 0.9,
         labFormat = if(input$map_type == "Bivariate (SVI + Eviction)") {
@@ -516,14 +527,44 @@ server <- function(input, output, session) {
         }
       ) %>%
 
+      #Add nonprofit markers with HIGHEST PRIORITY (always on top) - initially hidden
+      addCircleMarkers(
+        data = nonprofits,
+        radius = 4,
+        color = "#2c3e50",
+        weight = 2,
+        opacity = 0.8,
+        fillOpacity = 0.6,
+        popup = ~paste(
+          "<div style='font-family: Segoe UI, sans-serif;'>",
+          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
+          "<p><strong>Name:</strong> ", Organizati, "</p>",
+          "<p><strong>Address:</strong> ", Street_Add, "</p>",
+          "<p><strong>City:</strong> ", City, " ", State, " ", ZIP_Code, "</p>",
+          "</div>"
+        ),
+        label = ~Organizati,
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
+          textsize = "12px",
+          direction = "auto"
+        ),
+        group = "Nonprofits",
+        options = markerOptions(zIndexOffset = 1000)  # Ensure nonprofits are on top
+      ) %>%
+      
       #Add layer controls
       addLayersControl(
         baseGroups = c("Light", "Street", "Satellite"),
+        overlayGroups = c("Nonprofits"),
         options = layersControlOptions(collapsed = FALSE)
       ) %>%
       
       #Set view to Franklin County
-      setView(lng = -82.9988, lat = 39.9612, zoom = 10)
+      setView(lng = -82.9988, lat = 39.9612, zoom = 10) %>%
+      
+      #Initially hide nonprofit layer (will be shown when checkbox is checked)
+      hideGroup("Nonprofits")
   })
   
   #Update map when controls change
@@ -535,7 +576,7 @@ server <- function(input, output, session) {
         fillColor = if(input$map_type == "Bivariate (SVI + Eviction)") {
           create_bivariate_palette(map_data)
         } else {
-          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else total_filings_12months)
+          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else eviction_rate_per_1000)
         },
         weight = 1,
         opacity = 1,
@@ -573,47 +614,14 @@ server <- function(input, output, session) {
       )
   })
   
-  #Observer for nonprofit layer visibility
+  #Observer for nonprofit layer visibility - HIGHEST PRIORITY LAYER
   observe({
-    leafletProxy("map") %>%
-      clearGroup("Nonprofits")
-    
     if(input$show_nonprofits) {
       leafletProxy("map") %>%
-        addCircleMarkers(
-          data = nonprofits,
-          radius = 4,
-          color = "#2c3e50",
-          weight = 2,
-          opacity = 0.8,
-          fillOpacity = 0.6,
-          popup = ~paste(
-            "<div style='font-family: Segoe UI, sans-serif;'>",
-            "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
-            "<p><strong>Name:</strong> ", Organizati, "</p>",
-            "<p><strong>Address:</strong> ", Street_Add, "</p>",
-            "<p><strong>City:</strong> ", City, " ", State, " ", ZIP_Code, "</p>",
-            "</div>"
-          ),
-          label = ~Organizati,
-          labelOptions = labelOptions(
-            style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
-            textsize = "12px",
-            direction = "auto"
-          ),
-          group = "Nonprofits"
-        ) %>%
-        addLayersControl(
-          baseGroups = c("Light", "Street", "Satellite"),
-          overlayGroups = c("Nonprofits"),
-          options = layersControlOptions(collapsed = FALSE)
-        )
+        showGroup("Nonprofits")
     } else {
       leafletProxy("map") %>%
-        addLayersControl(
-          baseGroups = c("Light", "Street", "Satellite"),
-          options = layersControlOptions(collapsed = FALSE)
-        )
+        hideGroup("Nonprofits")
     }
   })
   
