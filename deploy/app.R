@@ -43,7 +43,11 @@ map_data <- franklin_svi %>%
     ALAND = ALAND.x,
     AWATER = AWATER.x,
     # Calculate eviction rate per 1,000 residents
-    eviction_rate_per_1000 = round((total_filings_12months / total_population) * 1000, 2)
+    eviction_rate_per_1000 = ifelse(
+      is.na(total_population) | total_population == 0, 
+      NA, 
+      round((total_filings_12months / total_population) * 1000, 2)
+    )
   ) %>%
   select(-NAME.y, -ALAND.y, -AWATER.y)
 
@@ -207,23 +211,48 @@ ui <- fluidPage(
 
   # Tab navigation + content
   div(
-    style = "text-align: center; margin: 20px;",
+    style = "margin: 20px;",
     tags$style(HTML("
-      .nav-tabs { border-bottom: none; margin-bottom: 0; }
+      .nav-tabs { 
+        border-bottom: none; 
+        margin-bottom: 0; 
+        display: flex;
+        justify-content: center;
+        padding-left: 0;
+        list-style: none;
+      }
+      .nav-tabs > li { 
+        display: inline-block; 
+        margin: 0 5px;
+      }
       .nav-tabs > li > a {
         background: rgba(255, 255, 255, 0.9);
         border: 2px solid #3498db;
         border-radius: 10px 10px 0 0;
-        margin-right: 5px; color: #2c3e50; font-weight: 500;
-        padding: 12px 25px; transition: all 0.3s ease;
+        color: #2c3e50; 
+        font-weight: 500;
+        padding: 12px 25px; 
+        transition: all 0.3s ease;
+        display: block;
+        text-decoration: none;
       }
-      .nav-tabs > li > a:hover { background: #3498db; color: white; border-color: #3498db; }
-      .nav-tabs > li.active > a { background: #3498db; color: white; border-color: #3498db; }
+      .nav-tabs > li > a:hover { 
+        background: #3498db; 
+        color: white; 
+        border-color: #3498db; 
+      }
+      .nav-tabs > li.active > a { 
+        background: #3498db; 
+        color: white; 
+        border-color: #3498db; 
+      }
       .tab-content {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 0 10px 10px 10px;
-        border: 2px solid #3498db; border-top: none;
-        padding: 25px; margin: 0 20px 20px 20px;
+        border: 2px solid #3498db; 
+        border-top: none;
+        padding: 25px; 
+        margin: 0 20px 20px 20px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       }
     ")),
@@ -431,15 +460,23 @@ server <- function(input, output, session) {
   
   #Reactive color palette
   reactive_pal <- reactive({
-    colorNumeric(
-      palette = input$color_palette,
-      domain = if(input$map_type == "SVI Only") {
-        map_data$SVI_normalized
-      } else {
-        map_data$total_filings_12months
-      },
-      na.color = "transparent"
-    )
+    domain_values <- if(input$map_type == "SVI Only") {
+      map_data$SVI_normalized
+    } else if(input$map_type == "Eviction Rate Only") {
+      map_data$eviction_rate_per_1000
+    } else {
+      map_data$total_filings_12months
+    }
+    
+    # Remove NA, Inf, and NaN values from domain
+    domain_values <- domain_values[!is.na(domain_values) & is.finite(domain_values)]
+    
+    if(length(domain_values) == 0) {
+      # Return a dummy palette if no valid values
+      colorNumeric(palette = input$color_palette, domain = c(0, 1), na.color = "transparent")
+    } else {
+      colorNumeric(palette = input$color_palette, domain = domain_values, na.color = "transparent")
+    }
   })
   
   #Create the map
@@ -456,7 +493,7 @@ server <- function(input, output, session) {
         } else if (input$map_type == "SVI Only") {
           ~reactive_pal()(SVI_normalized)
         } else {
-          ~reactive_pal()(total_filings_12months)
+          ~reactive_pal()(eviction_rate_per_1000)
         },
 
         weight = 1,
@@ -467,7 +504,7 @@ server <- function(input, output, session) {
           weight = 3,
           color = "#3498db",
           fillOpacity = 0.9,
-          bringToFront = TRUE
+          bringToFront = FALSE
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
@@ -510,14 +547,24 @@ server <- function(input, output, session) {
           c("High SVI + High Eviction Rate", "High SVI + Low Eviction Rate", 
             "Low SVI + High Eviction Rate", "Low SVI + Low Eviction Rate")
         } else {
-          if(input$map_type == "SVI Only") map_data$SVI_normalized else map_data$total_filings_12months
+          legend_values <- if(input$map_type == "SVI Only") {
+            map_data$SVI_normalized
+          } else if(input$map_type == "Eviction Rate Only") {
+            map_data$eviction_rate_per_1000
+          } else {
+            map_data$total_filings_12months
+          }
+          # Remove NA, Inf, and NaN values
+          legend_values[!is.na(legend_values) & is.finite(legend_values)]
         },
         title = if(input$map_type == "Bivariate (SVI + Eviction)") {
           "Bivariate Classification"
         } else if(input$map_type == "SVI Only") {
           "SVI Values"
+        } else if(input$map_type == "Eviction Rate Only") {
+          "Eviction Rate (per 1,000)"
         } else {
-          "Eviction Filings"
+          "Total Filings"
         },
         opacity = 0.9,
         labFormat = if(input$map_type == "Bivariate (SVI + Eviction)") {
@@ -527,14 +574,44 @@ server <- function(input, output, session) {
         }
       ) %>%
 
+      #Add nonprofit markers with HIGHEST PRIORITY (always on top) - initially hidden
+      addCircleMarkers(
+        data = nonprofits,
+        radius = 4,
+        color = "#2c3e50",
+        weight = 2,
+        opacity = 1.0,
+        fillOpacity = 0.8,
+        popup = ~paste(
+          "<div style='font-family: Segoe UI, sans-serif;'>",
+          "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
+          "<p><strong>Name:</strong> ", Organizati, "</p>",
+          "<p><strong>Address:</strong> ", Street_Add, "</p>",
+          "<p><strong>City:</strong> ", City, " ", State, " ", ZIP_Code, "</p>",
+          "</div>"
+        ),
+        label = ~Organizati,
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
+          textsize = "12px",
+          direction = "auto"
+        ),
+        group = "Nonprofits",
+        options = markerOptions(zIndexOffset = 10000)  # Ensure nonprofits are on top with highest priority
+      ) %>%
+      
       #Add layer controls
       addLayersControl(
         baseGroups = c("Light", "Street", "Satellite"),
+        overlayGroups = c("Nonprofits"),
         options = layersControlOptions(collapsed = FALSE)
       ) %>%
       
       #Set view to Franklin County
-      setView(lng = -82.9988, lat = 39.9612, zoom = 10)
+      setView(lng = -82.9988, lat = 39.9612, zoom = 10) %>%
+      
+      #Initially hide nonprofit layer (will be shown when checkbox is checked)
+      hideGroup("Nonprofits")
   })
   
   #Update map when controls change
@@ -546,7 +623,7 @@ server <- function(input, output, session) {
         fillColor = if(input$map_type == "Bivariate (SVI + Eviction)") {
           create_bivariate_palette(map_data)
         } else {
-          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else total_filings_12months)
+          ~reactive_pal()(if(input$map_type == "SVI Only") SVI_normalized else eviction_rate_per_1000)
         },
         weight = 1,
         opacity = 1,
@@ -556,7 +633,7 @@ server <- function(input, output, session) {
           weight = 3,
           color = "#3498db",
           fillOpacity = 0.9,
-          bringToFront = TRUE
+          bringToFront = FALSE
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
@@ -584,47 +661,14 @@ server <- function(input, output, session) {
       )
   })
   
-  #Observer for nonprofit layer visibility
+  #Observer for nonprofit layer visibility - HIGHEST PRIORITY LAYER
   observe({
-    leafletProxy("map") %>%
-      clearGroup("Nonprofits")
-    
     if(input$show_nonprofits) {
       leafletProxy("map") %>%
-        addCircleMarkers(
-          data = nonprofits,
-          radius = 4,
-          color = "#2c3e50",
-          weight = 2,
-          opacity = 0.8,
-          fillOpacity = 0.6,
-          popup = ~paste(
-            "<div style='font-family: Segoe UI, sans-serif;'>",
-            "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
-            "<p><strong>Name:</strong> ", Organizati, "</p>",
-            "<p><strong>Address:</strong> ", Street_Add, "</p>",
-            "<p><strong>City:</strong> ", City, " ", State, " ", ZIP_Code, "</p>",
-            "</div>"
-          ),
-          label = ~Organizati,
-          labelOptions = labelOptions(
-            style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "rgba(255,255,255,0.9)", "border-radius" = "4px"),
-            textsize = "12px",
-            direction = "auto"
-          ),
-          group = "Nonprofits"
-        ) %>%
-        addLayersControl(
-          baseGroups = c("Light", "Street", "Satellite"),
-          overlayGroups = c("Nonprofits"),
-          options = layersControlOptions(collapsed = FALSE)
-        )
+        showGroup("Nonprofits")
     } else {
       leafletProxy("map") %>%
-        addLayersControl(
-          baseGroups = c("Light", "Street", "Satellite"),
-          options = layersControlOptions(collapsed = FALSE)
-        )
+        hideGroup("Nonprofits")
     }
   })
   

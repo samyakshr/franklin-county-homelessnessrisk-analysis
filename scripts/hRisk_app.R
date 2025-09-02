@@ -504,7 +504,7 @@ server <- function(input, output, session) {
           weight = 3,
           color = "#3498db",
           fillOpacity = 0.9,
-          bringToFront = TRUE
+          bringToFront = FALSE
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
@@ -580,8 +580,8 @@ server <- function(input, output, session) {
         radius = 4,
         color = "#2c3e50",
         weight = 2,
-        opacity = 0.8,
-        fillOpacity = 0.6,
+        opacity = 1.0,
+        fillOpacity = 0.8,
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
           "<h4 style='color: #2c3e50; margin-bottom: 10px;'>Nonprofit Organization</h4>",
@@ -597,7 +597,7 @@ server <- function(input, output, session) {
           direction = "auto"
         ),
         group = "Nonprofits",
-        options = markerOptions(zIndexOffset = 1000)  # Ensure nonprofits are on top
+        options = markerOptions(zIndexOffset = 10000)  # Ensure nonprofits are on top with highest priority
       ) %>%
       
       #Add layer controls
@@ -633,7 +633,7 @@ server <- function(input, output, session) {
           weight = 3,
           color = "#3498db",
           fillOpacity = 0.9,
-          bringToFront = TRUE
+          bringToFront = FALSE
         ),
         popup = ~paste(
           "<div style='font-family: Segoe UI, sans-serif;'>",
