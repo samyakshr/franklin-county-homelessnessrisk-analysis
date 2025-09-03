@@ -8,6 +8,9 @@ library(leaflet)
 library(dplyr)
 library(readr)
 library(RColorBrewer)
+library(scales)
+
+
 
 bivariate_data <- read_csv("../data/processed/eviction_svi_bivariate_data_12months.csv")
 franklin_svi <- st_read("../data/raw/Franklin County SVI Data.shp")
@@ -338,6 +341,61 @@ ui <- fluidPage(
           )
         ) # end fluidRow
       ), # end tabPanel 1
+
+      tabPanel(
+        "Statistical Analysis",
+        div(
+          style = "padding: 20px;",
+          h2("Statistical Analysis Dashboard", style = "color: #2c3e50; margin-bottom: 30px;"),
+          
+          # Analysis selection
+          div(
+            style = "margin-bottom: 20px;",
+            selectInput(
+              "analysis_type", 
+              "Select Analysis Type:",
+              choices = c(
+                "SVI vs Eviction Rate Correlation" = "correlation",
+                "Demographic Analysis (Box Plots)" = "demographic"
+              ),
+              selected = "correlation"
+            )
+          ),
+          
+          # Conditional panels for different analyses
+          conditionalPanel(
+            condition = "input.analysis_type == 'correlation'",
+            h3("SVI vs Eviction Rate Analysis", style = "color: #3498db;"),
+            p("This scatterplot shows the relationship between Social Vulnerability Index (SVI) and eviction rates across Franklin County census tracts."),
+            br(),
+            plotOutput("scatterplot", height = "500px"),
+            br(),
+            div(
+              style = "background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #3498db;",
+              h4("Statistical Summary", style = "color: #2c3e50; margin-top: 0;"),
+              textOutput("correlation_text"),
+              br(),
+              textOutput("regression_text")
+            )
+          ),
+          
+          conditionalPanel(
+            condition = "input.analysis_type == 'demographic'",
+            h3("Demographic Analysis", style = "color: #3498db;"),
+            p("Box plots showing the distribution of eviction rates across different demographic groups in Franklin County."),
+            br(),
+            plotOutput("demographic_boxplot", height = "500px"),
+            br(),
+            div(
+              style = "background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #e74c3c;",
+              h4("Demographic Summary", style = "color: #2c3e50; margin-top: 0;"),
+              textOutput("demographic_summary")
+            )
+          ),
+          
+
+        )
+      ), # end tabPanel 2
 
       tabPanel(
         "Data Dictionary & Sources",
@@ -671,6 +729,170 @@ server <- function(input, output, session) {
         hideGroup("Nonprofits")
     }
   })
+  
+  # Statistical Analysis Outputs
+  output$scatterplot <- renderPlot({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000))
+    
+    # Create scatterplot
+    plot(analysis_data$SVI_normalized, analysis_data$eviction_rate_per_1000,
+         xlab = "Social Vulnerability Index (SVI)",
+         ylab = "Eviction Rate (per 1,000 residents)",
+         main = "Relationship Between SVI and Eviction Rates\nFranklin County Census Tracts",
+         pch = 19,
+         col = alpha("#3498db", 0.6),
+         cex = 1.2,
+         cex.lab = 1.1,
+         cex.main = 1.3,
+         cex.axis = 1.0)
+    
+    # Add regression line
+    if(nrow(analysis_data) > 1) {
+      lm_model <- lm(eviction_rate_per_1000 ~ SVI_normalized, data = analysis_data)
+      abline(lm_model, col = "#e74c3c", lwd = 3)
+      
+      # Add R-squared text
+      r_squared <- summary(lm_model)$r.squared
+      text(x = 0.05, y = max(analysis_data$eviction_rate_per_1000, na.rm = TRUE) * 0.9,
+           labels = paste("R² =", round(r_squared, 3)),
+           cex = 1.2, col = "#e74c3c", font = 2)
+    }
+    
+    # Add grid for better readability
+    grid(col = "gray90", lty = "dotted")
+  })
+  
+  output$correlation_text <- renderText({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000))
+    
+    if(nrow(analysis_data) > 1) {
+      correlation <- cor(analysis_data$SVI_normalized, analysis_data$eviction_rate_per_1000)
+      
+      # Test for significance
+      cor_test <- cor.test(analysis_data$SVI_normalized, analysis_data$eviction_rate_per_1000)
+      p_value <- cor_test$p.value
+      
+      significance <- ifelse(p_value < 0.001, "highly significant (p < 0.001)",
+                           ifelse(p_value < 0.01, "very significant (p < 0.01)",
+                                ifelse(p_value < 0.05, "significant (p < 0.05)",
+                                     "not significant (p ≥ 0.05)")))
+      
+      paste("Correlation Coefficient: r =", round(correlation, 3), 
+            "\nThe relationship is", significance,
+            "\nSample size:", nrow(analysis_data), "census tracts")
+    } else {
+      "Insufficient data for correlation analysis"
+    }
+  })
+  
+  output$regression_text <- renderText({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000))
+    
+    if(nrow(analysis_data) > 1) {
+      lm_model <- lm(eviction_rate_per_1000 ~ SVI_normalized, data = analysis_data)
+      summary_model <- summary(lm_model)
+      
+      intercept <- coef(lm_model)[1]
+      slope <- coef(lm_model)[2]
+      r_squared <- summary_model$r.squared
+      p_value <- summary_model$coefficients[2, 4]
+      
+      significance <- ifelse(p_value < 0.001, "highly significant (p < 0.001)",
+                           ifelse(p_value < 0.01, "very significant (p < 0.01)",
+                                ifelse(p_value < 0.05, "significant (p < 0.05)",
+                                     "not significant (p ≥ 0.05)")))
+      
+      paste("Linear Regression: Eviction Rate =", round(intercept, 2), "+", round(slope, 2), "× SVI",
+            "\nR-squared:", round(r_squared, 3), "(" , round(r_squared * 100, 1), "% of variance explained)",
+            "\nSlope is", significance)
+    } else {
+      "Insufficient data for regression analysis"
+    }
+  })
+  
+  # Demographic Analysis Outputs
+  output$demographic_boxplot <- renderPlot({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(racial_majority) & !is.na(eviction_rate_per_1000))
+    
+    # Create boxplot
+    boxplot(eviction_rate_per_1000 ~ racial_majority, 
+            data = analysis_data,
+            main = "Eviction Rates by Racial Demographics\nFranklin County Census Tracts",
+            xlab = "Racial Majority",
+            ylab = "Eviction Rate (per 1,000 residents)",
+            col = c("#e74c3c", "#f39c12", "#3498db"),
+            cex.lab = 1.1,
+            cex.main = 1.3,
+            cex.axis = 1.0)
+    
+    # Add grid for better readability
+    grid(col = "gray90", lty = "dotted")
+    
+    # Add sample sizes as text
+    sample_sizes <- table(analysis_data$racial_majority)
+    text(x = 1:length(sample_sizes), 
+         y = max(analysis_data$eviction_rate_per_1000, na.rm = TRUE) * 0.95,
+         labels = paste("n =", sample_sizes),
+         cex = 1.0, col = "#2c3e50", font = 2)
+  })
+  
+  output$demographic_summary <- renderText({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(racial_majority) & !is.na(eviction_rate_per_1000))
+    
+    if(nrow(analysis_data) > 1) {
+      # Calculate summary statistics by group
+      summary_stats <- analysis_data %>%
+        group_by(racial_majority) %>%
+        summarise(
+          mean_rate = round(mean(eviction_rate_per_1000, na.rm = TRUE), 2),
+          median_rate = round(median(eviction_rate_per_1000, na.rm = TRUE), 2),
+          sd_rate = round(sd(eviction_rate_per_1000, na.rm = TRUE), 2),
+          n = n(),
+          .groups = 'drop'
+        )
+      
+      # Perform ANOVA test
+      anova_result <- aov(eviction_rate_per_1000 ~ racial_majority, data = analysis_data)
+      anova_summary <- summary(anova_result)
+      p_value <- anova_summary[[1]][["Pr(>F)"]][1]
+      
+      significance <- ifelse(p_value < 0.001, "highly significant (p < 0.001)",
+                           ifelse(p_value < 0.01, "very significant (p < 0.01)",
+                                ifelse(p_value < 0.05, "significant (p < 0.05)",
+                                     "not significant (p ≥ 0.05)")))
+      
+      # Create summary text
+      summary_text <- "Summary Statistics by Racial Demographics:\n\n"
+      for(i in 1:nrow(summary_stats)) {
+        summary_text <- paste0(summary_text, 
+                              summary_stats$racial_majority[i], ": ",
+                              "Mean = ", summary_stats$mean_rate[i], 
+                              ", Median = ", summary_stats$median_rate[i],
+                              ", SD = ", summary_stats$sd_rate[i],
+                              ", n = ", summary_stats$n[i], "\n")
+      }
+      
+      summary_text <- paste0(summary_text, 
+                            "\nANOVA Test: Differences between groups are ", significance,
+                            "\nTotal sample size: ", nrow(analysis_data), " census tracts")
+      
+      return(summary_text)
+    } else {
+      "Insufficient data for demographic analysis"
+    }
+  })
+  
+
   
 }
 
