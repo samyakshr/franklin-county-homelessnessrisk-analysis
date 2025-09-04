@@ -3,6 +3,7 @@
 # Made by Samyak Shrestha
 
 library(shiny)
+library(shinyjs)
 library(sf)
 library(leaflet)
 library(dplyr)
@@ -97,6 +98,7 @@ create_bivariate_palette <- function(data) {
 #User Interface
 # User Interface
 ui <- fluidPage(
+  useShinyjs(),
   tags$head(
     tags$style(HTML("
       body {
@@ -200,14 +202,104 @@ ui <- fluidPage(
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
       }
+      
+      /* Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        max-width: 1000px;
+        max-height: 80vh;
+        overflow-y: auto;
+        margin: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+      }
+      .modal-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #3498db;
+      }
+      .modal-header h2 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 1.8em;
+        font-weight: 600;
+      }
+      .modal-body {
+        color: #34495e;
+        line-height: 1.6;
+        font-size: 1.1em;
+      }
+      .modal-body p {
+        margin-bottom: 15px;
+      }
+      .modal-body strong {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+      .modal-body a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .modal-body a:hover {
+        text-decoration: underline;
+      }
+      .modal-footer {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #ecf0f1;
+      }
+      .btn-confirm {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+      }
+      .btn-confirm:hover {
+        background: linear-gradient(135deg, #2980b9, #1f4e79);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+      .hidden {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .visible {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+      }
     "))
   ),  # <-- close tags$head(), keep a comma here
 
   # Header
   div(
     class = "header",
-    h1("Franklin County Eviction & Social Vulnerability Analysis"),
-    p("Interactive Bivariate Map: Eviction Rate + Social Vulnerability Index")
+    h1("Franklin County Homelessness Risk Analysis"),
+    p("Interactive Mapping & Statistical Analysis: Eviction Risk + Social Vulnerability Index")
   ),
 
   # Tab navigation + content
@@ -257,6 +349,28 @@ ui <- fluidPage(
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       }
     ")),
+    
+    # Welcome Modal
+    div(id = "welcomeModal", class = "modal-overlay",
+        div(class = "modal-content",
+            div(class = "modal-header",
+                h2("Welcome to Franklin County Homelessness Risk Analysis")
+            ),
+            div(class = "modal-body",
+                 p(em("Please note: This is a work in progress project. The analysis and application are being actively developed and refined.")),
+                p("Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to the Smart Columbus Team!"),
+                p("This web application provides interactive maps and statistical analysis to support decision making for homelessness prevention and housing stability efforts. This tool helps identify areas at highest risk of homelessness by analyzing eviction patterns and social vulnerability indicators across Franklin County, Ohio."),
+                p(strong("Our aim is to help community organizations, policymakers, and researchers understand the spatial distribution of homelessness risk factors, allowing for targeted interventions to prevent homelessness before it occurs.")),
+                p("Please note: If this is your first time using this application, please review the \"Data Dictionary & Sources\" tab to understand the data sources and methodology before using the information for decision-making. This website is provided for informational purposes only. Maps may load slowly during your first use. This application works best when using the Chrome web browser and viewed using a laptop or desktop.")
+            ),
+            div(class = "modal-footer",
+                actionButton("confirmWelcome", "Confirm", class = "btn-confirm")
+            )
+        )
+    ),
+    
+    # Main Application Content (initially hidden)
+    div(id = "mainContent", class = "hidden",
     tabsetPanel(
       tabPanel(
         "Interactive Map",
@@ -516,11 +630,35 @@ ui <- fluidPage(
         ) # end inner div of tab 2
       )  # end tabPanel 2
     )  # end tabsetPanel
+    ),  # end mainContent div
+    
+    # JavaScript for modal functionality
+    tags$script(HTML("
+      $(document).ready(function() {
+        // Show modal on page load
+        $('#welcomeModal').show();
+        
+        // Handle confirm button click
+        $('#confirmWelcome').click(function() {
+          $('#welcomeModal').hide();
+          $('#mainContent').removeClass('hidden').addClass('visible');
+        });
+      });
+    "))
+    
   )  # end outer div containing tabs
 )  # <-- FINAL: closes fluidPage
 
 
 server <- function(input, output, session) {
+  
+  # Handle modal confirmation
+  observeEvent(input$confirmWelcome, {
+    # Hide modal and show main content
+    shinyjs::hide("welcomeModal")
+    shinyjs::removeClass("mainContent", "hidden")
+    shinyjs::addClass("mainContent", "visible")
+  })
   
   #Reactive color palette
   reactive_pal <- reactive({

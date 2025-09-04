@@ -1,4 +1,4 @@
-# Franklin County Eviction & Social Vulnerability Analysis
+# Franklin County Homelessness Risk Analysis
 
 ![Bivariate Map of Franklin County Homelessness Risk Analysis](images/Screenshot.png)
 
@@ -11,7 +11,7 @@ This application allows users to explore the spatial distribution of eviction ac
 Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone and the Smart Columbus Team!
 
 ### Live Application
-**Access the application directly:** [Franklin County Eviction & SVI Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
+**Access the application directly:** [Franklin County Homelessness Risk Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
 
 No setup required - simply click the link to explore the interactive maps and statistical analysis dashboard.
 
