@@ -162,26 +162,6 @@ The application includes a data processing script (`scripts/process_eviction_dat
 5. Creates normalized values for mapping
 6. Exports processed data to CSV
 
-## Key Statistics
-
-### Data Coverage
-Based on the 12-month analysis (July 2024 - June 2025):
-- **Total Eviction Filings**: 24,954 across all tracts
-- **Average Filings per Tract**: 76.1
-- **Median Filings per Tract**: 45.0
-- **Maximum Filings**: 348 (Tract 75.53)
-- **Census Tracts Analyzed**: 328
-- **Population Coverage**: 100% of census tracts with 2023 ACS population data
-- **Nonprofit Organizations**: 1,342 locations across Franklin County
-- **Eviction Rate Analysis**: Standardized rates per 1,000 residents for fair comparison across tracts
-- **Bivariate Classification**: Color-coded risk assessment (Red = Highest urgency, Gray = Lowest risk)
-
-### Statistical Analysis Results
-- **SVI-Eviction Correlation**: Overall correlation coefficient and significance testing
-- **Demographic Comparisons**: ANOVA analysis across racial/ethnic groups
-- **Race-Specific Patterns**: Individual correlation coefficients for each demographic group
-- **Regression Analysis**: R-squared values and trend line analysis
-
 ## Project Structure
 
 ```
