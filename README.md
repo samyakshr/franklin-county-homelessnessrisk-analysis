@@ -10,7 +10,7 @@ This project creates an interactive bivariate map showing eviction rates (per 1,
 
 Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone and the Smart Columbus Team!
 
-### 🚀 Live Application
+### Live Application
 **Access the interactive application directly:** [Franklin County Eviction & SVI Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/franklin-county-eviction-analysis/)
 
 No setup required - simply click the link to explore the interactive maps and statistical analysis dashboard.
@@ -37,7 +37,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - **Layer Controls**: Multiple map tile options (Light, Street, Satellite)
 - **Risk Classification**: Color-coded bivariate classification with red indicating highest urgency areas
 
-### Statistical Analysis Dashboard
+### Statistical Analysis 
 - **Correlation Analysis**: SVI vs Eviction Rate scatterplots with statistical summaries
 - **Demographic Analysis**: Box plots showing eviction rate distributions across racial/ethnic groups
 - **Race-Specific Analysis**: Separate scatterplots for each racial majority group with individual correlation coefficients
@@ -54,10 +54,11 @@ This analysis provides insights for organizations like Smart Columbus and other 
 
 ### Eviction Data
 - **Source**: Franklin County Court System
-- **Processed by**: Samyak Shrestha
+- **Processing**: Aggregated by census tract and converted to eviction rates per 1,000 residents
+- **Engineered by**: Samyak Shrestha
 - **Coverage**: Franklin County, Ohio monthly eviction filings
 - **Time Period**: July 2024 - June 2025 (12 months)
-- **Processing**: Aggregated by census tract and converted to rates per 1,000 residents
+
 
 ### Social Vulnerability Index (SVI)
 - **Source**: CDC/ATSDR Social Vulnerability Index
@@ -75,7 +76,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 
 ### Nonprofit Organizations
 - **Source**: Human Services Chamber of Franklin County, The Columbus Foundation
-- **Processed and Geocoded by**: Samyak Shrestha and Ayaz Hyder
+- **Engineered and Geocoded by**: Ayaz Hyder and Samyak Shrestha
 - **Coverage**: Franklin County, Ohio
 - **Total Organizations**: 1,342 nonprofit locations
 - **Geographic Unit**: Point locations
