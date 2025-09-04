@@ -278,7 +278,7 @@ ui <- fluidPage(
         background: white;
         border-radius: 15px;
         padding: 30px;
-        max-width: 800px;
+        max-width: 1000px;
         max-height: 80vh;
         overflow-y: auto;
         margin: 20px;

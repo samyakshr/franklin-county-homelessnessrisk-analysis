@@ -1,6 +1,6 @@
 # Franklin County Eviction & Social Vulnerability Analysis
 
-![Bivariate Map of Franklin County Eviction and Social Vulnerability Analysis](images/Screenshot.png)
+![Bivariate Map of Franklin County Homelessness Risk Analysis](images/Screenshot.png)
 
 ## Overview
 
