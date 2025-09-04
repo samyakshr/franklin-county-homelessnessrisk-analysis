@@ -356,8 +356,7 @@ ui <- fluidPage(
               "Select Analysis Type:",
               choices = c(
                 "SVI vs Eviction Rate Correlation" = "correlation",
-                "Demographic Analysis (Box Plots)" = "demographic",
-                "SVI vs Eviction Rate by Race" = "race_scatter"
+                "Demographic Analysis (Box Plots)" = "demographic"
               ),
               selected = "correlation"
             )
@@ -377,7 +376,12 @@ ui <- fluidPage(
               textOutput("correlation_text"),
               br(),
               textOutput("regression_text")
-            )
+            ),
+            br(),
+            h3("SVI vs Eviction Rate by Racial Demographics", style = "color: #3498db; margin-top: 40px;"),
+            p("Scatterplots showing the relationship between Social Vulnerability Index (SVI) and eviction rates, separated by racial majority groups."),
+            br(),
+            plotOutput("race_scatterplot", height = "600px")
           ),
           
           conditionalPanel(
@@ -394,13 +398,6 @@ ui <- fluidPage(
             )
           ),
           
-          conditionalPanel(
-            condition = "input.analysis_type == 'race_scatter'",
-            h3("SVI vs Eviction Rate by Racial Demographics", style = "color: #3498db;"),
-            p("Scatterplots showing the relationship between Social Vulnerability Index (SVI) and eviction rates, separated by racial majority groups."),
-            br(),
-            plotOutput("race_scatterplot", height = "600px")
-          ),
           
 
         )
@@ -414,6 +411,7 @@ ui <- fluidPage(
           h3("Data Sources", style = "color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;"),
           h4("1. Eviction Data"),
           p("• Source: Franklin County Court System"),
+          p("• Processed into a analytic dataset by Samyak Shrestha"),
           p("• Coverage: Franklin County, Ohio monthly eviction filings"),
           p("• Time Period: July 2024 - June 2025 (12 months)"),
           p("• Processing: Aggregated by census tract and converted to rates per 1,000 residents"),
@@ -430,7 +428,8 @@ ui <- fluidPage(
           p("• File: ACSDT5Y2023.B01003-Data.csv"),
           br(),
           h4("4. Nonprofit Organizations"),
-          p("• Source: Geocoded nonprofit locations"),
+          p("• Source: Human Services Chamber of Franklin County, The Columbus Foundation"),
+          p("• Processed and Geocoded into a analytic dataset by Samyak Shrestha and Ayaz Hyder"),
           p("• Coverage: Franklin County, Ohio"),
           p("• Geographic Unit: Point locations"),
           p("• Total Organizations: 1,342"),
@@ -447,7 +446,9 @@ ui <- fluidPage(
           div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
               p("• total_filings_12months: Total eviction filings over 12 months"),
               p("• eviction_rate_per_1000: Eviction rate per 1,000 residents"),
-              p("• Calculation: (total_filings_12months / total_population) × 1000")
+              p("• Calculation: (total_filings_12months / total_population) × 1000"),
+              p("• racial_majority: Majority racial/ethnic group for a given tract/zip, based on American Community Survey (ACS) 2015-2019 estimates. ")
+
           ),
           h4("Social Vulnerability Index (SVI) Variables"),
           div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
@@ -472,8 +473,7 @@ ui <- fluidPage(
           h4("Population Demographics"),
           div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
               p("• total_population: Total population count (2023 estimate)"),
-              p("• population_margin_error: Margin of error for population estimate"),
-              p("• racial_majority: Racial/ethnic group with highest population")
+              p("• population_margin_error: Margin of error for population estimate")
           ),
           h4("Nonprofit Organization Variables"),
           div(style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;",
