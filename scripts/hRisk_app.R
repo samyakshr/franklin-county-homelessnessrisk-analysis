@@ -410,7 +410,7 @@ ui <- fluidPage(
           h2("Data Dictionary & Sources", style = "color: #2c3e50; margin-bottom: 30px;"),
           h3("Data Sources", style = "color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;"),
           h4("1. Eviction Data"),
-          p("• Source: Franklin County Court System"),
+          p("• Source: The Eviction Lab"),
           p("• Processed into a analytic dataset by Samyak Shrestha"),
           p("• Coverage: Franklin County, Ohio monthly eviction filings"),
           p("• Time Period: July 2024 - June 2025 (12 months)"),
