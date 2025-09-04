@@ -4,25 +4,25 @@
 
 ## Overview
 
-This project creates an interactive bivariate map showing eviction rates (per 1,000 residents) and Social Vulnerability Index (SVI) data for Franklin County, Ohio census tracts. The application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors, providing a tool for identifying high-risk areas and planning community interventions.
+This application allows users to explore the spatial distribution of eviction activity and its relationship to social vulnerability factors, providing a tool for identifying high-risk areas and planning community interventions.
 
 **This is a work in progress project.** The analysis and application are being actively developed and refined.
 
 Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone and the Smart Columbus Team!
 
 ### Live Application
-**Access the interactive application directly:** [Franklin County Eviction & SVI Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/franklin-county-eviction-analysis/)
+**Access the application directly:** [Franklin County Eviction & SVI Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
 
 No setup required - simply click the link to explore the interactive maps and statistical analysis dashboard.
 
 ## Impact on Community Interventions
 
-This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high eviction rates combined with high social vulnerability, these organizations can:
+This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high risk of homelessness, these organizations can:
 
 - Focus resources on areas with both high eviction rates and high SVI scores to maximize impact.
 - Use spatial data to guide program design and identify opportunities for collaborative service delivery.
-- Deploy proactive interventions like legal aid, rental assistance, and tenant education in high-risk communities.
-- Support policy, advocacy, and grant applications with clear, data-driven evidence of need and changing conditions.
+- Deploy interventions like legal aid, rental assistance, and tenant education in high-risk communities.
+- Support policy, advocacy, and grant applications with data-driven evidence of need and changing conditions.
 - Prioritize interventions based on standardized eviction rates that account for population size differences.
 
 
