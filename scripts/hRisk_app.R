@@ -356,7 +356,8 @@ ui <- fluidPage(
               "Select Analysis Type:",
               choices = c(
                 "SVI vs Eviction Rate Correlation" = "correlation",
-                "Demographic Analysis (Box Plots)" = "demographic"
+                "Demographic Analysis (Box Plots)" = "demographic",
+                "SVI vs Eviction Rate by Race" = "race_scatter"
               ),
               selected = "correlation"
             )
@@ -391,6 +392,14 @@ ui <- fluidPage(
               h4("Demographic Summary", style = "color: #2c3e50; margin-top: 0;"),
               textOutput("demographic_summary")
             )
+          ),
+          
+          conditionalPanel(
+            condition = "input.analysis_type == 'race_scatter'",
+            h3("SVI vs Eviction Rate by Racial Demographics", style = "color: #3498db;"),
+            p("Scatterplots showing the relationship between Social Vulnerability Index (SVI) and eviction rates, separated by racial majority groups."),
+            br(),
+            plotOutput("race_scatterplot", height = "600px")
           ),
           
 
@@ -889,6 +898,71 @@ server <- function(input, output, session) {
       return(summary_text)
     } else {
       "Insufficient data for demographic analysis"
+    }
+  })
+  
+  # Race-specific scatterplot analysis
+  output$race_scatterplot <- renderPlot({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000) & !is.na(racial_majority))
+    
+    if(nrow(analysis_data) > 10) {
+      # Get unique racial groups
+      racial_groups <- unique(analysis_data$racial_majority)
+      n_groups <- length(racial_groups)
+      
+      # Set up the plot layout
+      if(n_groups == 1) {
+        par(mfrow = c(1, 1))
+      } else if(n_groups == 2) {
+        par(mfrow = c(1, 2))
+      } else {
+        par(mfrow = c(2, 2))
+      }
+      
+      # Define colors for each group
+      colors <- c("#e74c3c", "#f39c12", "#3498db", "#27ae60", "#9b59b6")
+      
+      # Create scatterplot for each racial group
+      for(i in 1:n_groups) {
+        group_data <- analysis_data %>% filter(racial_majority == racial_groups[i])
+        
+        # Calculate correlation for this group
+        correlation <- cor(group_data$SVI_normalized, group_data$eviction_rate_per_1000, use = "complete.obs")
+        
+        # Create the plot
+        plot(group_data$SVI_normalized, group_data$eviction_rate_per_1000,
+             main = paste(racial_groups[i], "\n(n =", nrow(group_data), ")"),
+             xlab = "Social Vulnerability Index (SVI)",
+             ylab = "Eviction Rate (per 1,000 residents)",
+             pch = 19,
+             col = alpha(colors[i], 0.6),
+             cex = 1.2,
+             cex.main = 1.1,
+             cex.lab = 1.0,
+             cex.axis = 0.9)
+        
+        # Add trend line
+        if(nrow(group_data) > 2) {
+          lm_model <- lm(eviction_rate_per_1000 ~ SVI_normalized, data = group_data)
+          abline(lm_model, col = colors[i], lwd = 2)
+          
+          # Add correlation coefficient
+          r_squared <- summary(lm_model)$r.squared
+          text(x = min(group_data$SVI_normalized, na.rm = TRUE) + 
+                 (max(group_data$SVI_normalized, na.rm = TRUE) - min(group_data$SVI_normalized, na.rm = TRUE)) * 0.05,
+               y = max(group_data$eviction_rate_per_1000, na.rm = TRUE) * 0.95,
+               labels = paste("r =", round(correlation, 3), "\nR² =", round(r_squared, 3)),
+               cex = 0.9, col = colors[i], font = 2)
+        }
+        
+        # Add grid
+        grid(col = "gray90", lty = "dotted")
+      }
+      
+      # Reset plot layout
+      par(mfrow = c(1, 1))
     }
   })
   
