@@ -619,7 +619,8 @@ ui <- fluidPage(
                 a(href = "https://www.census.gov/programs-surveys/acs/", "https://www.census.gov/programs-surveys/acs/")),
               p("Centers for Disease Control and Prevention. (n.d.). Social Vulnerability Index (SVI). Retrieved from ",
                 a(href = "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html", "https://www.atsdr.cdc.gov/placeandhealth/svi/index.html")),
-              p("Peter Hepburn, Jacob Haas, Renee Louis, Adam Chapnik, Danny Grubbs-Donovan, Olivia Jin, Jasmine Rangel, and Matthew Desmond. Eviction Tracking System: Version 2.0. Princeton: Princeton University, 2020. www.evictionlab.org"),
+              p("Peter Hepburn, Jacob Haas, Renee Louis, Adam Chapnik, Danny Grubbs-Donovan, Olivia Jin, Jasmine Rangel, and Matthew Desmond. Eviction Tracking System: Version 2.0. Princeton: Princeton University, 2020. ",
+                a(href = "https://www.evictionlab.org", "www.evictionlab.org")),
               p("U.S. Census Bureau. (2023). TIGER/Line Shapefile, 2023, County: Franklin County, OH - Topological faces polygons with all geocode [Data set]. Retrieved from ",
                 a(href = "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode",
                   "https://catalog.data.gov/dataset/tiger-line-shapefile-2023-county-franklin-county-oh-topological-faces-polygons-with-all-geocode"))
