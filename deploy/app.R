@@ -358,7 +358,7 @@ ui <- fluidPage(
             ),
             div(class = "modal-body",
                  p(em("Please note: This is a work in progress project. The analysis and application are being actively developed and refined.")),
-                p("Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to the Smart Columbus Team!"),
+                p("Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to the Smart Columbus and Research Team at TCP!"),
                 p("This web application provides interactive maps and statistical analysis to support decision making for homelessness prevention and housing stability efforts. This tool helps identify areas at highest risk of homelessness by analyzing eviction patterns and social vulnerability indicators across Franklin County, Ohio."),
                 p(strong("Our aim is to help community organizations, policymakers, and researchers understand the spatial distribution of homelessness risk factors, allowing for targeted interventions to prevent homelessness before it occurs.")),
                 p("Please note: If this is your first time using this application, please review the \"Data Dictionary & Sources\" tab to understand the data sources and methodology. This website is provided for informational purposes only. Maps may load slowly during your first use. This application works best when using the Chrome web browser and viewed using a laptop or desktop.")
@@ -416,13 +416,6 @@ ui <- fluidPage(
                   checkboxInput("show_nonprofits", "Show Nonprofit Locations", value = FALSE)
               ),
 
-              h4("Data Information"),
-              div(class = "info-box",
-                  h4("Time Period"),
-                  p("Eviction data covers July 2024 - June 2025"),
-                  p("(12 months of recent eviction filings)"),
-                  p("SVI data represents social vulnerability index")
-              ),
 
               h4("Bivariate Legend"),
               div(class = "legend-box",
@@ -489,11 +482,6 @@ ui <- fluidPage(
               br(),
               textOutput("regression_text")
             ),
-            br(),
-            h3("SVI vs Eviction Rate by Racial Demographics", style = "color: #3498db; margin-top: 40px;"),
-            p("Scatterplots showing the relationship between Social Vulnerability Index (SVI) and eviction rates, separated by racial majority groups."),
-            br(),
-            plotOutput("race_scatterplot", height = "600px")
           ),
           
           conditionalPanel(
@@ -968,7 +956,7 @@ server <- function(input, output, session) {
              "Equation: Eviction Rate = ", round(intercept, 2), " + ", round(slope, 2), " × SVI\n",
              "R-squared = ", round(r_squared, 3), " (", round(r_squared * 100, 1), "% of variance explained)\n",
              "Slope is ", significance, "\n",
-             "For every 1-unit increase in SVI, eviction rate changes by ", round(slope, 2), " per 1,000 residents")
+             "Interpretation: For every 0.1-unit increase in SVI, eviction rate changes by ", round(slope * 0.1, 2), " per 1,000 residents")
     } else {
       "Insufficient data for regression analysis"
     }
@@ -1052,70 +1040,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # Race-specific scatterplot analysis
-  output$race_scatterplot <- renderPlot({
-    # Filter out NA values for the analysis
-    analysis_data <- map_data %>%
-      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000) & !is.na(racial_majority))
-    
-    if(nrow(analysis_data) > 10) {
-      # Get unique racial groups
-      racial_groups <- unique(analysis_data$racial_majority)
-      n_groups <- length(racial_groups)
-      
-      # Set up the plot layout
-      if(n_groups == 1) {
-        par(mfrow = c(1, 1))
-      } else if(n_groups == 2) {
-        par(mfrow = c(1, 2))
-      } else {
-        par(mfrow = c(2, 2))
-      }
-      
-      # Define colors for each group
-      colors <- c("#e74c3c", "#f39c12", "#3498db", "#27ae60", "#9b59b6")
-      
-      # Create scatterplot for each racial group
-      for(i in 1:n_groups) {
-        group_data <- analysis_data %>% filter(racial_majority == racial_groups[i])
-        
-        # Calculate correlation for this group
-        correlation <- cor(group_data$SVI_normalized, group_data$eviction_rate_per_1000, use = "complete.obs")
-        
-        # Create the plot
-        plot(group_data$SVI_normalized, group_data$eviction_rate_per_1000,
-             main = paste(racial_groups[i], "\n(n =", nrow(group_data), ")"),
-             xlab = "Social Vulnerability Index (SVI)",
-             ylab = "Eviction Rate (per 1,000 residents)",
-             pch = 19,
-             col = alpha(colors[i], 0.6),
-             cex = 1.2,
-             cex.main = 1.1,
-             cex.lab = 1.0,
-             cex.axis = 0.9)
-        
-        # Add trend line
-        if(nrow(group_data) > 2) {
-          lm_model <- lm(eviction_rate_per_1000 ~ SVI_normalized, data = group_data)
-          abline(lm_model, col = colors[i], lwd = 2)
-          
-          # Add correlation coefficient
-          r_squared <- summary(lm_model)$r.squared
-          text(x = min(group_data$SVI_normalized, na.rm = TRUE) + 
-                 (max(group_data$SVI_normalized, na.rm = TRUE) - min(group_data$SVI_normalized, na.rm = TRUE)) * 0.05,
-               y = max(group_data$eviction_rate_per_1000, na.rm = TRUE) * 0.95,
-               labels = paste("r =", round(correlation, 3), "\nR² =", round(r_squared, 3)),
-               cex = 0.9, col = colors[i], font = 2)
-        }
-        
-        # Add grid
-        grid(col = "gray90", lty = "dotted")
-      }
-      
-      # Reset plot layout
-      par(mfrow = c(1, 1))
-    }
-  })
 
   
 }
