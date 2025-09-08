@@ -482,6 +482,12 @@ ui <- fluidPage(
               br(),
               textOutput("regression_text")
             ),
+            br(),
+            div(
+              style = "background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 5px solid #ffc107; margin-top: 20px;",
+              h4("Hypothesis Testing & Analysis", style = "color: #856404; margin-top: 0;"),
+              uiOutput("hypothesis_analysis")
+            ),
           ),
           
           conditionalPanel(
@@ -961,6 +967,74 @@ server <- function(input, output, session) {
       "Insufficient data for regression analysis"
     }
   })
+  
+  # Hypothesis Testing & Analysis
+  output$hypothesis_analysis <- renderUI({
+    # Filter out NA values for the analysis
+    analysis_data <- map_data %>%
+      filter(!is.na(SVI_normalized) & !is.na(eviction_rate_per_1000))
+    
+    if(nrow(analysis_data) > 10) {
+      # Perform correlation test
+      cor_test <- cor.test(analysis_data$SVI_normalized, analysis_data$eviction_rate_per_1000)
+      correlation <- cor_test$estimate
+      p_value <- cor_test$p.value
+      
+      # Identify high-risk areas (top quartile for both SVI and eviction rates)
+      svi_75th <- quantile(analysis_data$SVI_normalized, 0.75, na.rm = TRUE)
+      eviction_75th <- quantile(analysis_data$eviction_rate_per_1000, 0.75, na.rm = TRUE)
+      
+      high_risk_areas <- analysis_data %>%
+        filter(SVI_normalized >= svi_75th & eviction_rate_per_1000 >= eviction_75th)
+      
+      # Calculate statistics
+      n_high_risk <- nrow(high_risk_areas)
+      total_areas <- nrow(analysis_data)
+      high_risk_percentage <- round((n_high_risk / total_areas) * 100, 1)
+      
+      # Determine pattern strength
+      pattern_strength <- ifelse(abs(correlation) >= 0.7, "strong",
+                               ifelse(abs(correlation) >= 0.5, "moderate",
+                                    ifelse(abs(correlation) >= 0.3, "weak", "very weak")))
+      
+      # Create hypothesis analysis text
+      tags$div(
+        tags$h4("HYPOTHESIS:", style = "margin-top: 0; margin-bottom: 10px;"),
+        tags$p("Census tracts with higher Social Vulnerability Index (SVI) will have higher eviction rates."),
+        
+        tags$h4("PATTERN IDENTIFIED:", style = "margin-top: 20px; margin-bottom: 10px;"),
+        tags$p(paste0(ifelse(correlation > 0, "Positive", "Negative"), " ", pattern_strength, 
+                     " correlation (r = ", round(correlation, 3), ", p = ", round(p_value, 3), ") between SVI and eviction rates.")),
+        
+        tags$h4("KEY FINDINGS:", style = "margin-top: 20px; margin-bottom: 10px;"),
+        tags$ul(
+          tags$li(paste0(high_risk_percentage, "% of census tracts (", n_high_risk, " out of ", total_areas, 
+                        ") are in the high-risk category (top 25% for both SVI and eviction rates)")),
+          tags$li(paste0("High SVI areas show ", round(mean(high_risk_areas$eviction_rate_per_1000, na.rm = TRUE), 1), 
+                        " evictions per 1,000 residents on average")),
+          tags$li(paste0("Low SVI areas show ", round(mean(analysis_data$eviction_rate_per_1000[analysis_data$SVI_normalized < quantile(analysis_data$SVI_normalized, 0.25, na.rm = TRUE)], na.rm = TRUE), 1), 
+                        " evictions per 1,000 residents on average"))
+        ),
+        
+        tags$h4("INTERPRETATION:", style = "margin-top: 20px; margin-bottom: 10px;"),
+        tags$p(ifelse(correlation > 0.3, 
+                     "Social vulnerability factors (poverty, housing quality, transportation access, etc.) create a compounding effect that increases eviction risk. Areas with multiple social disadvantages face higher housing instability.",
+                     "The relationship between social vulnerability and eviction rates is less clear, suggesting other factors may be more influential in eviction patterns.")),
+        
+        tags$h4("RECOMMENDATIONS:", style = "margin-top: 20px; margin-bottom: 10px;"),
+        tags$ul(
+          tags$li(paste0("Target high-risk areas (SVI ≥ ", round(svi_75th, 2), ") for intensive eviction prevention programs")),
+          tags$li("Implement housing stability services in vulnerable communities before eviction filings occur"),
+          tags$li("Focus resources on addressing root causes of social vulnerability (economic opportunity, housing quality, social support)"),
+          tags$li("Develop early warning systems to identify at-risk households in high SVI areas"),
+          tags$li("Coordinate with nonprofit organizations in high-risk areas for targeted intervention")
+        )
+      )
+    } else {
+      "Insufficient data for hypothesis testing analysis"
+    }
+  })
+  
   
   # Demographic Analysis Outputs
   output$demographic_boxplot <- renderPlot({
