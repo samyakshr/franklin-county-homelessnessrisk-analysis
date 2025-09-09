@@ -451,7 +451,7 @@ ui <- fluidPage(
         "Statistical Analysis",
         div(
           style = "padding: 20px;",
-          h2("Statistical Analysis Dashboard", style = "color: #2c3e50; margin-bottom: 30px;"),
+          h2("Statistical Analysis", style = "color: #2c3e50; margin-bottom: 30px;"),
           
           # Analysis selection
           div(
@@ -1044,11 +1044,15 @@ server <- function(input, output, session) {
       filter(!is.na(racial_majority) & !is.na(eviction_rate_per_1000))
     
     if(nrow(analysis_data) > 1) {
+      # Reorder racial_majority to put Black and White together
+      analysis_data$racial_majority <- factor(analysis_data$racial_majority, 
+                                             levels = c("Black", "White", "Other"))
+      
       # Create boxplot
       boxplot(eviction_rate_per_1000 ~ racial_majority,
               data = analysis_data,
               main = "Eviction Rates by Racial Demographics\nFranklin County Census Tracts",
-              xlab = "Racial Majority",
+              xlab = "Racial Majority by Census Tract (ACS)",
               ylab = "Eviction Rate (per 1,000 residents)",
               col = c("#e74c3c", "#f39c12", "#3498db"),
               cex.lab = 1.1,
