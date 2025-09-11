@@ -189,22 +189,6 @@ franklin-county-homelessnessrisk-analysis/
 └── .gitignore                     
 ```
 
-## Recent Updates & Improvements
-
-### Version 2.0 Features (Latest)
-- **Statistical Analysis Dashboard**: New comprehensive statistical analysis tab with correlation and demographic analysis
-- **Race-Specific Analysis**: Separate scatterplots for each racial/ethnic group with individual correlation coefficients
-- **Enhanced Data Dictionary**: Detailed variable definitions including racial_majority variable information
-- **Improved UI/UX**: Centered tab navigation and better visual organization
-- **Nonprofit Layer Improvements**: High-priority layering ensures nonprofit markers are always visible
-- **Deployment Ready**: Separate deploy folder with production-ready app.R file
-
-### Technical Improvements
-- **Error Handling**: Robust handling of NA, Inf, and NaN values in data processing
-- **Package Management**: Added scales package for enhanced plotting capabilities
-- **Code Organization**: Streamlined statistical analysis workflow
-- **Data Validation**: Improved data quality checks and validation
-
 ## License
 
 This project is open source and available under the MIT License.
