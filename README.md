@@ -31,7 +31,6 @@ This analysis provides insights for organizations like Smart Columbus and other 
 ### Interactive Mapping
 - **Interactive Bivariate Mapping**: Visualize eviction rates (per 1,000 residents) and SVI data simultaneously
 - **Multiple View Modes**: Switch between bivariate, SVI-only, or eviction rate views
-- **Population Data Integration**: U.S. Census Bureau ACS 5-Year Estimates (2023) for all 328 census tracts
 - **Enhanced Popups**: Display both eviction filings count AND eviction rate per 1,000 residents
 - **Nonprofit Layer**: Toggle to show nonprofit organization locations across Franklin County with high-priority layering
 - **Layer Controls**: Multiple map tile options (Light, Street, Satellite)
@@ -40,9 +39,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 ### Statistical Analysis 
 - **Correlation Analysis**: SVI vs Eviction Rate scatterplots with statistical summaries
 - **Demographic Analysis**: Box plots showing eviction rate distributions across racial/ethnic groups
-- **Race-Specific Analysis**: Separate scatterplots for each racial majority group with individual correlation coefficients
 - **Statistical Metrics**: Pearson correlation coefficients, R-squared values, and regression analysis
-- **ANOVA Testing**: Statistical comparisons between demographic groups
 
 ### User Interface
 - **Centered Tab Navigation**: Improved UI with centered tab buttons for better user experience
