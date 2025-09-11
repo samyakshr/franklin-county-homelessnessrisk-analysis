@@ -292,6 +292,36 @@ ui <- fluidPage(
         opacity: 1;
         transition: opacity 0.3s ease;
       }
+      
+      /* Map Animation Styles */
+      .map-container {
+        transition: all 0.5s ease-in-out;
+      }
+      
+      .leaflet-container {
+        transition: all 0.5s ease-in-out;
+      }
+      
+      .leaflet-interactive {
+        transition: fill 0.5s ease-in-out, stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      
+      .leaflet-legend {
+        transition: all 0.5s ease-in-out;
+      }
+      
+      .leaflet-popup {
+        transition: all 0.3s ease-in-out;
+      }
+      
+      .leaflet-marker-icon {
+        transition: all 0.3s ease-in-out;
+      }
+      
+      .transitioning {
+        transform: scale(0.98);
+        opacity: 0.8;
+      }
     "))
   ),  # <-- close tags$head(), keep a comma here
 
@@ -627,16 +657,31 @@ ui <- fluidPage(
     )  # end tabsetPanel
     ),  # end mainContent div
     
-    # JavaScript for modal functionality
+    # JavaScript for modal functionality and map animations
     tags$script(HTML("
       $(document).ready(function() {
         // Show modal on page load
         $('#welcomeModal').show();
-        
+
         // Handle confirm button click
         $('#confirmWelcome').click(function() {
           $('#welcomeModal').hide();
           $('#mainContent').removeClass('hidden').addClass('visible');
+        });
+        
+        // Map animation functions
+        window.animateMapTransition = function() {
+          $('.map-container').addClass('transitioning');
+          setTimeout(function() {
+            $('.map-container').removeClass('transitioning');
+          }, 500);
+        };
+        
+        // Add smooth transitions to map controls
+        $('.form-group').on('change', 'select, input', function() {
+          if ($(this).attr('id') === 'map_type' || $(this).attr('id') === 'color_palette') {
+            window.animateMapTransition();
+          }
         });
       });
     "))
@@ -646,6 +691,28 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
+  
+  # Add animated transitions when map type or color palette changes
+  observe({
+    # Trigger animation when map type changes
+    if (!is.null(input$map_type)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
+  
+  observe({
+    # Trigger animation when color palette changes
+    if (!is.null(input$color_palette)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
+  
+  observe({
+    # Trigger animation when opacity changes
+    if (!is.null(input$opacity)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
   
   # Handle modal confirmation
   observeEvent(input$confirmWelcome, {
@@ -658,11 +725,11 @@ server <- function(input, output, session) {
   #Reactive color palette
   reactive_pal <- reactive({
     domain_values <- if(input$map_type == "SVI Only") {
-      map_data$SVI_normalized
+        map_data$SVI_normalized
     } else if(input$map_type == "Eviction Rate Only") {
       map_data$eviction_rate_per_1000
-    } else {
-      map_data$total_filings_12months
+      } else {
+        map_data$total_filings_12months
     }
     
     # Remove NA, Inf, and NaN values from domain
@@ -796,7 +863,7 @@ server <- function(input, output, session) {
         group = "Nonprofits",
         options = markerOptions(zIndexOffset = 10000)  # Ensure nonprofits are on top with highest priority
       ) %>%
-      
+
       #Add layer controls
       addLayersControl(
         baseGroups = c("Light", "Street", "Satellite"),
@@ -1030,7 +1097,7 @@ server <- function(input, output, session) {
           tags$li("Develop early warning systems to identify at-risk households in high SVI areas"),
           tags$li("Coordinate with nonprofit organizations in high-risk areas for targeted intervention")
         )
-      )
+        )
     } else {
       "Insufficient data for hypothesis testing analysis"
     }

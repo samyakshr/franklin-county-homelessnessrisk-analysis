@@ -345,11 +345,41 @@ ui <- fluidPage(
         opacity: 0;
         transition: opacity 0.3s ease;
       }
-      .visible {
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-      }
+        .visible {
+          visibility: visible;
+          opacity: 1;
+          transition: opacity 0.3s ease;
+        }
+        
+        /* Map Animation Styles */
+        .map-container {
+          transition: all 0.5s ease-in-out;
+        }
+        
+        .leaflet-container {
+          transition: all 0.5s ease-in-out;
+        }
+        
+        .leaflet-interactive {
+          transition: fill 0.5s ease-in-out, stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        
+        .leaflet-legend {
+          transition: all 0.5s ease-in-out;
+        }
+        
+        .leaflet-popup {
+          transition: all 0.3s ease-in-out;
+        }
+        
+        .leaflet-marker-icon {
+          transition: all 0.3s ease-in-out;
+        }
+        
+        .transitioning {
+          transform: scale(0.98);
+          opacity: 0.8;
+        }
     ")),
     
     # Welcome Modal
@@ -630,16 +660,31 @@ ui <- fluidPage(
     )  # end tabsetPanel
     ),  # end mainContent div
     
-    # JavaScript for modal functionality
+    # JavaScript for modal functionality and map animations
     tags$script(HTML("
       $(document).ready(function() {
         // Show modal on page load
         $('#welcomeModal').show();
-        
+
         // Handle confirm button click
         $('#confirmWelcome').click(function() {
           $('#welcomeModal').hide();
           $('#mainContent').removeClass('hidden').addClass('visible');
+        });
+        
+        // Map animation functions
+        window.animateMapTransition = function() {
+          $('.map-container').addClass('transitioning');
+          setTimeout(function() {
+            $('.map-container').removeClass('transitioning');
+          }, 500);
+        };
+        
+        // Add smooth transitions to map controls
+        $('.form-group').on('change', 'select, input', function() {
+          if ($(this).attr('id') === 'map_type' || $(this).attr('id') === 'color_palette') {
+            window.animateMapTransition();
+          }
         });
       });
     "))
@@ -649,6 +694,28 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
+  
+  # Add animated transitions when map type or color palette changes
+  observe({
+    # Trigger animation when map type changes
+    if (!is.null(input$map_type)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
+  
+  observe({
+    # Trigger animation when color palette changes
+    if (!is.null(input$color_palette)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
+  
+  observe({
+    # Trigger animation when opacity changes
+    if (!is.null(input$opacity)) {
+      shinyjs::runjs("window.animateMapTransition();")
+    }
+  })
   
   # Handle modal confirmation
   observeEvent(input$confirmWelcome, {
