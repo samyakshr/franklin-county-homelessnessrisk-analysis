@@ -1,23 +1,22 @@
 # Process eviction data for 12-month period
-# July 2024 - June 2025
+# September 2024 - August 2025
 
 library(dplyr)
 library(readr)
 library(sf)
 
-columbus_data <- read_csv("../data/raw/columbus_monthly_2020_2021.csv") #load and clean data
+columbus_data <- read_csv("../data/raw/columbus_monthly_2020_2025.csv") #load and clean data
 columbus_clean <- columbus_data %>% 
   filter(GEOID != "sealed" & !is.na(GEOID)) %>%
   mutate(GEOID = as.character(GEOID))
 
 columbus_clean <- columbus_clean %>% #convert dates
   mutate(
-    month_year = paste0(month, "-01"),
-    date = as.Date(month_year, format = "%b-%y-%d")
+    date = as.Date(paste0("01/", month), format = "%d/%m/%Y")
   )
 
-start_date <- as.Date("2024-07-01")
-end_date <- as.Date("2025-06-30")
+start_date <- as.Date("2024-09-01")
+end_date <- as.Date("2025-08-31")
 
 recent_data <- columbus_clean %>%
   filter(date >= start_date & date <= end_date)
@@ -62,7 +61,7 @@ bivariate_data_12months <- eviction_rates_12months %>%
 write_csv(bivariate_data_12months, "../data/processed/eviction_svi_bivariate_data_12months.csv")
 
 #Print summary
-cat("=== 12-Month Eviction Analysis (July 2024 - June 2025) ===\n")
+cat("=== 12-Month Eviction Analysis (September 2024 - August 2025) ===\n")
 cat("Total census tracts with data:", nrow(bivariate_data_12months), "\n")
 cat("Total eviction filings across all tracts:", sum(bivariate_data_12months$total_filings_12months), "\n")
 cat("Average eviction rate per 1,000 residents:", mean(bivariate_data_12months$eviction_rate_12months, na.rm = TRUE), "\n")
