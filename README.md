@@ -49,7 +49,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 ## Data Sources
 
 ### Eviction Data
-- **Source**: Franklin County Court System
+- **Source**: The Eviction Lab
 - **Processing**: Aggregated by census tract and converted to eviction rates per 1,000 residents
 - **Engineered by**: Samyak Shrestha
 - **Coverage**: Franklin County, Ohio monthly eviction filings
