@@ -387,7 +387,7 @@ ui <- fluidPage(
                 h2("Welcome to Franklin County Homelessness Risk Analysis")
             ),
             div(class = "modal-body",
-                 p(em("Please note: This is a work in progress project. The analysis and application are being actively developed and refined.")),
+                 p(em("Please note: This is a work in progress project. The analysis and application are being actively developed and refined. This app belongs to Smart Columbus, Guests may be given view access for review, please do not copy, share, or use it for private gain.")),
                 p("Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to the Smart Columbus and Research Team at TCP!"),
                 p("This web application provides interactive maps and statistical analysis to support decision making for homelessness prevention and housing stability efforts. This tool helps identify areas at highest risk of homelessness by analyzing eviction patterns and social vulnerability indicators across Franklin County, Ohio."),
                 p(strong("Our aim is to help community organizations, policymakers, and researchers understand the spatial distribution of homelessness risk factors, allowing for targeted interventions to prevent homelessness before it occurs.")),
