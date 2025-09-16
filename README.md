@@ -25,7 +25,6 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - Support policy, advocacy, and grant applications with data-driven evidence of need and changing conditions.
 - Prioritize interventions based on standardized eviction rates that account for population size differences.
 
-
 ## Features
 
 ### Interactive Mapping
@@ -54,7 +53,7 @@ This analysis provides insights for organizations like Smart Columbus and other 
 - **Processing**: Aggregated by census tract and converted to eviction rates per 1,000 residents
 - **Engineered by**: Samyak Shrestha
 - **Coverage**: Franklin County, Ohio monthly eviction filings
-- **Time Period**: July 2024 - June 2025 (12 months)
+- **Time Period**: Sept. 2024 - Aug. 2025 (12 months)
 
 
 ### Social Vulnerability Index (SVI)
