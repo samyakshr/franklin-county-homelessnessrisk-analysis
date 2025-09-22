@@ -13,8 +13,6 @@ Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dy
 ### Live Application
 **Access the application directly:** [Franklin County Homelessness Risk Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
 
-No setup required - simply click the link to explore the interactive maps and statistical analysis dashboard.
-
 ## Impact on Community Interventions
 
 This analysis provides insights for organizations like Smart Columbus and other nonprofits working to address housing instability and homelessness prevention. By identifying census tracts with high risk of homelessness, these organizations can:
