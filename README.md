@@ -1,6 +1,6 @@
-# Franklin County Homelessness Risk Analysis
+# Franklin County Housing Instability Dashboard
 
-![Bivariate Map of Franklin County Homelessness Risk Analysis](images/Screenshot.png)
+![Bivariate Map of Franklin County Housing Instability Dashboard](images/Screenshot.png)
 
 ## Overview
 
@@ -11,7 +11,7 @@ This application allows users to explore the spatial distribution of eviction ac
 Created by Samyak Shrestha | Mentored by Dr. Ayaz Hyder and Special thanks to Dylan Sansone and the Smart Columbus Team!
 
 ### Live Application
-**Access the application directly:** [Franklin County Homelessness Risk Analysis App](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
+**Access the application directly:** [Franklin County Housing Instability Dashboard](https://samyakshr-smartcolumbus.shinyapps.io/app_20250904_082903/)
 
 ## Impact on Community Interventions
 

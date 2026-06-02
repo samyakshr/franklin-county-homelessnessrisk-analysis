@@ -328,7 +328,7 @@ ui <- fluidPage(
   # Header
   div(
     class = "header",
-    h1("Franklin County Homelessness Risk Analysis"),
+    h1("Franklin County Housing Instability Dashboard"),
     p("Interactive Mapping & Statistical Analysis: Eviction Risk + Social Vulnerability Index")
   ),
 
@@ -384,7 +384,7 @@ ui <- fluidPage(
     div(id = "welcomeModal", class = "modal-overlay",
         div(class = "modal-content",
             div(class = "modal-header",
-                h2("Welcome to Franklin County Homelessness Risk Analysis")
+                h2("Welcome to Franklin County Housing Instability Dashboard")
             ),
             div(class = "modal-body",
                  p(em("Please note: This is a work in progress project. The analysis and application are being actively developed and refined. This app belongs to Smart Columbus, Guests may be given view access for review, please do not copy, share, or use it for private gain.")),
@@ -1191,4 +1191,4 @@ server <- function(input, output, session) {
 }
 
 #Run app
-shinyApp(ui = ui, server = server) 
+shinyApp(ui = ui, server = server, options = list(title = "Franklin County Housing Instability Dashboard")) 
