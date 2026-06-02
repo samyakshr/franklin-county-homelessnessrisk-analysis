@@ -159,7 +159,7 @@ The application includes a data processing script (`scripts/process_eviction_dat
 ## Project Structure
 
 ```
-franklin-county-homelessnessrisk-analysis/
+franklin-county-housing-instability-dashboard/
 ├── README.md                          
 ├── images/                            
 │   └── Screenshot.png              
